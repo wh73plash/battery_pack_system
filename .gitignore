@@ -1,0 +1,10 @@
+.DS_Store
+.vs
+Pack_Monitor.sln
+App.config
+main.Designer.cs
+main.resx
+Pack_Monitor.csproj
+Properties/
+obj/
+bin/
