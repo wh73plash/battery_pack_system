@@ -265,6 +265,7 @@ namespace Pack_Monitor {
         }
 
         private int error_count = 0;
+        private bool data_receive_test = false;
 
         private void timer_Tick(object sender, EventArgs e) {
             try {
@@ -291,16 +292,24 @@ namespace Pack_Monitor {
                     }
                     if (Connection.connection_check) {
                         Com_start_btn.BackColor = Color.White;
-                    } else { Com_start_btn.BackColor = Color.Lime; }
-                    if (!Members.error_cout_bool) { 
-                        error_count++;
-                    } else {
-                        Members.error_cout_bool = true;
+                    } else { 
+                        Com_start_btn.BackColor = Color.Lime; 
                     }
+
+                    if(Connection.connection_check == data_receive_test) {
+                        ++error_count;
+                    }
+
+                    data_receive_test = Connection.connection_check;
+
                     if(error_count >= 5) {
                         error_count = 0;
-                        timer.Enabled = false;
+                        timer_display.Enabled = timer.Enabled = false;
                         Com_start_btn.BackColor = Color.White;
+                        is_communicate = false;
+                        Connection.reset( );
+                        MessageBox.Show("Interrupting the communication due to a communication problem", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        TraceManager.AddLog("ERROR   #communicate  $Communicate problem detected @interrupted the communication");
                     }
                 }
             } catch (Exception ex) {
@@ -1956,7 +1965,7 @@ namespace Pack_Monitor {
                 //02 30 01 08 04 0d 10 27 00 00 00 00 03
                 int[] datas = new int[13];
                 int cnt = 0;
-                string str = rsport.ReadLine( );
+                string str = rsport.ReadExisting( );
                 TraceManager.AddLog("rs232c data receive : [" + str + "]");
                 for(int i = 0; i < str.Length; i += 2) {
                     datas[cnt++] = Convert.ToInt32(str[i + 1].ToString( ) + str[i].ToString( ));
