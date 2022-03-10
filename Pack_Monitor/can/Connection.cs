@@ -24,7 +24,7 @@ namespace Pack_Monitor.CAN {
         public static bool[] b_ls = new bool[28];
         public static string[] buffer_ls = new string[38];
         public static bool connection_check = false;
-        private static TPCANMsg process_write_message(setting_data_set message) {
+        public static TPCANMsg process_write_message(setting_data_set message) {
             try {
                 TPCANMsg msg = new TPCANMsg( );
 

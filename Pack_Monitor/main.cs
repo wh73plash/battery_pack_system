@@ -319,7 +319,7 @@ namespace Pack_Monitor {
 
         private void setting_socset_btn_Click(object sender, EventArgs e) {
             try {
-                if (setting_soc_value.Text == "") {
+                if (setting_soc_value.Text == string.Empty) {
                     return;
                 }
                 setting_data_set newMessage = new setting_data_set( );
@@ -482,7 +482,7 @@ namespace Pack_Monitor {
             try {
                 string file_path;
                 OpenFileDialog openFileDialog = new OpenFileDialog( );
-                if (Properties.Settings.Default.save_file_path == "") {
+                if (Properties.Settings.Default.save_file_path == string.Empty) {
                     Properties.Settings.Default.save_file_path = Directory.GetCurrentDirectory( );
                 }
                 openFileDialog.InitialDirectory = Properties.Settings.Default.save_file_path;
@@ -646,7 +646,7 @@ namespace Pack_Monitor {
         private void data_save_btn_Click(object sender, EventArgs e) {
             if (data_save_btn.Text == "Data Save") {
                 SaveFileDialog saveFileDialog = new SaveFileDialog( );
-                if (Properties.Settings.Default.save_file_path == "") {
+                if (Properties.Settings.Default.save_file_path == string.Empty) {
                     Properties.Settings.Default.save_file_path = Directory.GetCurrentDirectory( );
                 }
                 saveFileDialog.InitialDirectory = Properties.Settings.Default.save_file_path;
@@ -719,7 +719,7 @@ namespace Pack_Monitor {
             try {
                 string file_path;
                 SaveFileDialog saveFile = new SaveFileDialog( );
-                if (Properties.Settings.Default.save_file_path == "") {
+                if (Properties.Settings.Default.save_file_path == string.Empty) {
                     Properties.Settings.Default.save_file_path = Directory.GetCurrentDirectory( );
                 }
                 saveFile.InitialDirectory = Properties.Settings.Default.save_file_path;
@@ -743,136 +743,136 @@ namespace Pack_Monitor {
 
         private void dataclearbtn_Click(object sender, EventArgs e) {
             try {
-                pw_over_voltage_detection.Text = "";
-                pw_over_voltage_detection_time.Text = "";
-                pw_over_voltage_release.Text = "";
-                pw_over_voltage_release_time.Text = "";
+                pw_over_voltage_detection.Text = string.Empty;
+                pw_over_voltage_detection_time.Text = string.Empty;
+                pw_over_voltage_release.Text = string.Empty;
+                pw_over_voltage_release_time.Text = string.Empty;
 
-                pw_under_voltage_detection.Text = "";
-                pw_under_voltage_detection_time.Text = "";
-                pw_under_voltage_release.Text = "";
-                pw_under_voltage_release_time.Text = "";
+                pw_under_voltage_detection.Text = string.Empty;
+                pw_under_voltage_detection_time.Text = string.Empty;
+                pw_under_voltage_release.Text = string.Empty;
+                pw_under_voltage_release_time.Text = string.Empty;
 
-                pw_charge_over_current_detection.Text = "";
-                pw_charge_over_current_detection_time.Text = "";
-                pw_charge_over_current_release.Text = "";
-                pw_charge_over_current_release_time.Text = "";
+                pw_charge_over_current_detection.Text = string.Empty;
+                pw_charge_over_current_detection_time.Text = string.Empty;
+                pw_charge_over_current_release.Text = string.Empty;
+                pw_charge_over_current_release_time.Text = string.Empty;
 
-                pw_discharge_over_current_detection.Text = "";
-                pw_discharge_over_current_detection_time.Text = "";
-                pw_discharge_over_current_release.Text = "";
-                pw_discharge_over_current_release_time.Text = "";
+                pw_discharge_over_current_detection.Text = string.Empty;
+                pw_discharge_over_current_detection_time.Text = string.Empty;
+                pw_discharge_over_current_release.Text = string.Empty;
+                pw_discharge_over_current_release_time.Text = string.Empty;
 
-                pw_over_soc_detection.Text = "";
-                pw_over_soc_detection_time.Text = "";
-                pw_over_soc_release.Text = "";
-                pw_over_soc_release_time.Text = "";
+                pw_over_soc_detection.Text = string.Empty;
+                pw_over_soc_detection_time.Text = string.Empty;
+                pw_over_soc_release.Text = string.Empty;
+                pw_over_soc_release_time.Text = string.Empty;
 
-                pw_under_soc_detection.Text = "";
-                pw_under_soc_detection_time.Text = "";
-                pw_under_soc_release.Text = "";
-                pw_under_soc_release_time.Text = "";
+                pw_under_soc_detection.Text = string.Empty;
+                pw_under_soc_detection_time.Text = string.Empty;
+                pw_under_soc_release.Text = string.Empty;
+                pw_under_soc_release_time.Text = string.Empty;
 
-                pw_under_soh_detection.Text = "";
-                pw_under_soh_detection_time.Text = "";
+                pw_under_soh_detection.Text = string.Empty;
+                pw_under_soh_detection_time.Text = string.Empty;
 
-                pf_over_voltage_detection.Text = "";
-                pf_over_voltage_detection_time.Text = "";
-                pf_over_voltage_release.Text = "";
-                pf_over_voltage_release_time.Text = "";
+                pf_over_voltage_detection.Text = string.Empty;
+                pf_over_voltage_detection_time.Text = string.Empty;
+                pf_over_voltage_release.Text = string.Empty;
+                pf_over_voltage_release_time.Text = string.Empty;
 
-                pf_under_voltage_detection.Text = "";
-                pf_under_voltage_detection_time.Text = "";
-                pf_under_voltage_release.Text = "";
-                pf_under_voltage_release_time.Text = "";
+                pf_under_voltage_detection.Text = string.Empty;
+                pf_under_voltage_detection_time.Text = string.Empty;
+                pf_under_voltage_release.Text = string.Empty;
+                pf_under_voltage_release_time.Text = string.Empty;
 
-                pf_charge_over_current_detection.Text = "";
-                pf_charge_over_current_detection_time.Text = "";
-                pf_charge_over_current_release.Text = "";
-                pf_charge_over_current_release_time.Text = "";
+                pf_charge_over_current_detection.Text = string.Empty;
+                pf_charge_over_current_detection_time.Text = string.Empty;
+                pf_charge_over_current_release.Text = string.Empty;
+                pf_charge_over_current_release_time.Text = string.Empty;
 
-                pf_discharge_over_current_detection.Text = "";
-                pf_discharge_over_current_detection_time.Text = "";
-                pf_discharge_over_current_release.Text = "";
-                pf_discharge_over_current_release_time.Text = "";
+                pf_discharge_over_current_detection.Text = string.Empty;
+                pf_discharge_over_current_detection_time.Text = string.Empty;
+                pf_discharge_over_current_release.Text = string.Empty;
+                pf_discharge_over_current_release_time.Text = string.Empty;
 
-                pf_over_soc_detection.Text = "";
-                pf_over_soc_detection_time.Text = "";
-                pf_over_soc_release.Text = "";
-                pf_over_soc_release_time.Text = "";
+                pf_over_soc_detection.Text = string.Empty;
+                pf_over_soc_detection_time.Text = string.Empty;
+                pf_over_soc_release.Text = string.Empty;
+                pf_over_soc_release_time.Text = string.Empty;
 
-                pf_under_soc_detection.Text = "";
-                pf_under_soc_detection_time.Text = "";
-                pf_under_soc_release.Text = "";
-                pf_under_soc_release_time.Text = "";
+                pf_under_soc_detection.Text = string.Empty;
+                pf_under_soc_detection_time.Text = string.Empty;
+                pf_under_soc_release.Text = string.Empty;
+                pf_under_soc_release_time.Text = string.Empty;
 
-                cw_over_voltage_detection.Text = "";
-                cw_over_voltage_detection_time.Text = "";
-                cw_over_voltage_release.Text = "";
-                cw_over_voltage_release_time.Text = "";
+                cw_over_voltage_detection.Text = string.Empty;
+                cw_over_voltage_detection_time.Text = string.Empty;
+                cw_over_voltage_release.Text = string.Empty;
+                cw_over_voltage_release_time.Text = string.Empty;
 
-                cw_under_voltage_detection.Text = "";
-                cw_under_voltage_detection_time.Text = "";
-                cw_under_voltage_release.Text = "";
-                cw_under_voltage_release_time.Text = "";
+                cw_under_voltage_detection.Text = string.Empty;
+                cw_under_voltage_detection_time.Text = string.Empty;
+                cw_under_voltage_release.Text = string.Empty;
+                cw_under_voltage_release_time.Text = string.Empty;
 
-                cw_charge_over_current_detection.Text = "";
-                cw_charge_over_current_detection_time.Text = "";
-                cw_charge_over_current_release.Text = "";
-                cw_charge_over_current_release_time.Text = "";
+                cw_charge_over_current_detection.Text = string.Empty;
+                cw_charge_over_current_detection_time.Text = string.Empty;
+                cw_charge_over_current_release.Text = string.Empty;
+                cw_charge_over_current_release_time.Text = string.Empty;
 
-                cw_discharge_over_current_detection.Text = "";
-                cw_discharge_over_current_detection_time.Text = "";
-                cw_discharge_over_current_release.Text = "";
-                cw_discharge_over_current_release_time.Text = "";
+                cw_discharge_over_current_detection.Text = string.Empty;
+                cw_discharge_over_current_detection_time.Text = string.Empty;
+                cw_discharge_over_current_release.Text = string.Empty;
+                cw_discharge_over_current_release_time.Text = string.Empty;
 
-                cw_over_soc_detection.Text = "";
-                cw_over_soc_detection_time.Text = "";
-                cw_over_soc_release.Text = "";
-                cw_over_soc_release_time.Text = "";
+                cw_over_soc_detection.Text = string.Empty;
+                cw_over_soc_detection_time.Text = string.Empty;
+                cw_over_soc_release.Text = string.Empty;
+                cw_over_soc_release_time.Text = string.Empty;
 
-                cw_under_soc_detection.Text = "";
-                cw_under_soc_detection_time.Text = "";
-                cw_under_soc_release.Text = "";
-                cw_under_soc_release_time.Text = "";
+                cw_under_soc_detection.Text = string.Empty;
+                cw_under_soc_detection_time.Text = string.Empty;
+                cw_under_soc_release.Text = string.Empty;
+                cw_under_soc_release_time.Text = string.Empty;
 
-                cf_over_voltage_detection.Text = "";
-                cf_over_voltage_detection_time.Text = "";
-                cf_over_voltage_release.Text = "";
-                cf_over_voltage_release_time.Text = "";
+                cf_over_voltage_detection.Text = string.Empty;
+                cf_over_voltage_detection_time.Text = string.Empty;
+                cf_over_voltage_release.Text = string.Empty;
+                cf_over_voltage_release_time.Text = string.Empty;
 
-                cf_under_voltage_detection.Text = "";
-                cf_under_voltage_detection_time.Text = "";
-                cf_under_voltage_release.Text = "";
-                cf_under_voltage_release_time.Text = "";
+                cf_under_voltage_detection.Text = string.Empty;
+                cf_under_voltage_detection_time.Text = string.Empty;
+                cf_under_voltage_release.Text = string.Empty;
+                cf_under_voltage_release_time.Text = string.Empty;
 
-                cf_charge_over_current_detection.Text = "";
-                cf_charge_over_current_detection_time.Text = "";
-                cf_charge_over_current_release.Text = "";
-                cf_charge_over_current_release_time.Text = "";
+                cf_charge_over_current_detection.Text = string.Empty;
+                cf_charge_over_current_detection_time.Text = string.Empty;
+                cf_charge_over_current_release.Text = string.Empty;
+                cf_charge_over_current_release_time.Text = string.Empty;
 
-                cf_discharge_over_current_detection.Text = "";
-                cf_discharge_over_current_detection_time.Text = "";
-                cf_discharge_over_current_release.Text = "";
-                cf_discharge_over_current_release_time.Text = "";
+                cf_discharge_over_current_detection.Text = string.Empty;
+                cf_discharge_over_current_detection_time.Text = string.Empty;
+                cf_discharge_over_current_release.Text = string.Empty;
+                cf_discharge_over_current_release_time.Text = string.Empty;
 
-                cf_over_soc_detection.Text = "";
-                cf_over_soc_detection_time.Text = "";
-                cf_over_soc_release.Text = "";
-                cf_over_soc_release_time.Text = "";
+                cf_over_soc_detection.Text = string.Empty;
+                cf_over_soc_detection_time.Text = string.Empty;
+                cf_over_soc_release.Text = string.Empty;
+                cf_over_soc_release_time.Text = string.Empty;
 
-                cf_under_soc_detection.Text = "";
-                cf_under_soc_detection_time.Text = "";
-                cf_under_soc_release.Text = "";
-                cf_under_soc_release_time.Text = "";
+                cf_under_soc_detection.Text = string.Empty;
+                cf_under_soc_detection_time.Text = string.Empty;
+                cf_under_soc_release.Text = string.Empty;
+                cf_under_soc_release_time.Text = string.Empty;
 
-                setting_battery_capacity.Text = "";
-                setting_cell_life_cycle.Text = "";
-                setting_cell_balancing_start_v.Text = "";
-                setting_number_of_cell.Text = "";
+                setting_battery_capacity.Text = string.Empty;
+                setting_cell_life_cycle.Text = string.Empty;
+                setting_cell_balancing_start_v.Text = string.Empty;
+                setting_number_of_cell.Text = string.Empty;
 
-                setting_soc_value.Text = "";
-                setting_soh_value.Text = "";
+                setting_soc_value.Text = string.Empty;
+                setting_soh_value.Text = string.Empty;
 
                 p_overvoltage_ch.Checked = false;
                 p_undervoltage_ch.Checked = false;
@@ -1135,8 +1135,252 @@ namespace Pack_Monitor {
             return;
         }
 
-        private async Task rsdownload_bms( ) {
+        private void send(setting_data_set message) {
+            byte[ ] data = new byte[13];
+            data[0] = 0x02; data[1] = 0x30; data[2] = 0x01; data[3] = 0x08; data[12] = 0x03;
+            TPCANMsg buffer = Connection.process_write_message(message);
+            for (int i = 0; i < 8; ++i)
+                Buffer.BlockCopy(buffer.DATA, i, data, 4 + i, 1);
+            rsport.Write(data, 0, 13);
+        }
 
+        private async Task rsdownload_bms( ) {
+            try {
+                setting_data_set newMessage = new setting_data_set( );
+                newMessage.ID = 0x130;
+                newMessage.value_number = 4;
+                newMessage.worf = 0x0D;
+                newMessage.message = setting_battery_capacity.Text;
+                TraceManager.AddLog("WRITE #write message $value number:4 @message:" + setting_battery_capacity.Text);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 5;
+                newMessage.worf = 0x0E;
+                newMessage.message = setting_cell_life_cycle.Text;
+                TraceManager.AddLog("WRITE #write message $value number:5 @message:" + setting_cell_life_cycle.Text);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 6;
+                newMessage.worf = 0x0F;
+                newMessage.message = setting_cell_balancing_start_v.Text;
+                TraceManager.AddLog("WRITE #write message $value number:6 @message:" + setting_cell_balancing_start_v.Text);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 11;
+                newMessage.worf = 0x1E;
+                newMessage.message = setting_number_of_cell.Text;
+                TraceManager.AddLog("WRITE #write message $value number:11 @message:" + setting_number_of_cell.Text);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 12;
+                newMessage.worf = 0x1F;
+                newMessage.message = check_enable.ToString( );
+                TraceManager.AddLog("WRITE #write message $value number:12 @message:" + check_enable.ToString( ));
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 21;
+                newMessage.worf = 1;
+                newMessage.message = pw_over_voltage_detection.Text + ',' + pw_over_voltage_detection_time.Text + ',' + pw_over_voltage_release.Text + ',' + pw_over_voltage_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:21 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+                newMessage.value_number = 21;
+                newMessage.worf = 2;
+                newMessage.message = pf_over_voltage_detection.Text + ',' + pf_over_voltage_detection_time.Text + ',' + pf_over_voltage_release.Text + ',' + pf_over_voltage_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:21 2 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 22;
+                newMessage.worf = 1;
+                newMessage.message = pw_under_voltage_detection.Text + ',' + pw_under_voltage_detection_time.Text + ',' + pw_under_voltage_release.Text + ',' + pw_under_voltage_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:22 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+                newMessage.value_number = 22;
+                newMessage.worf = 2;
+                newMessage.message = pf_under_voltage_detection.Text + ',' + pf_under_voltage_detection_time.Text + ',' + pf_under_voltage_release.Text + ',' + pf_under_voltage_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:22 2 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 23;
+                newMessage.worf = 1;
+                newMessage.message = pw_charge_over_current_detection.Text + ',' + pw_charge_over_current_detection_time.Text + ',' + pw_charge_over_current_release.Text + ',' + pw_charge_over_current_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:23 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+                newMessage.value_number = 23;
+                newMessage.worf = 2;
+                newMessage.message = pf_charge_over_current_detection.Text + ',' + pf_charge_over_current_detection_time.Text + ',' + pf_charge_over_current_release.Text + ',' + pf_charge_over_current_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:23 2 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 24;
+                newMessage.worf = 1;
+                newMessage.message = pw_discharge_over_current_detection.Text + ',' + pw_discharge_over_current_detection_time.Text + ',' + pw_discharge_over_current_release.Text + ',' + pw_discharge_over_current_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:24 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+                newMessage.value_number = 24;
+                newMessage.worf = 2;
+                newMessage.message = pf_discharge_over_current_detection.Text + ',' + pf_discharge_over_current_detection_time.Text + ',' + pf_discharge_over_current_release.Text + ',' + pf_discharge_over_current_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:24 2 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 25;
+                newMessage.worf = 1;
+                newMessage.message = pw_over_soc_detection.Text + ',' + pw_over_soc_detection_time.Text + ',' + pw_over_soc_release.Text + ',' + pw_over_soc_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:25 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+                newMessage.value_number = 25;
+                newMessage.worf = 2;
+                newMessage.message = pf_over_soc_detection.Text + ',' + pf_over_soc_detection_time.Text + ',' + pf_over_soc_release.Text + ',' + pf_over_soc_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:25 2 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 26;
+                newMessage.worf = 1;
+                newMessage.message = pw_under_soc_detection.Text + ',' + pw_under_soc_detection_time.Text + ',' + pw_under_soc_release.Text + ',' + pw_under_soc_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:26 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+                newMessage.value_number = 26;
+                newMessage.worf = 2;
+                newMessage.message = pf_under_soc_detection.Text + ',' + pf_under_soc_detection_time.Text + ',' + pf_under_soc_release.Text + ',' + pf_under_soc_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:26 2 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 27;
+                newMessage.worf = 1;
+                newMessage.message = pw_under_soh_detection.Text + ',' + pw_under_soh_detection_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:27 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                //----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+                newMessage.value_number = 28;
+                newMessage.worf = 1;
+                newMessage.message = cw_over_voltage_detection.Text + ',' + cw_over_voltage_detection_time.Text + ',' + cw_over_voltage_release.Text + ',' + cw_over_voltage_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:28 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+                newMessage.value_number = 28;
+                newMessage.worf = 2;
+                newMessage.message = cf_over_voltage_detection.Text + ',' + cf_over_voltage_detection_time.Text + ',' + cf_over_voltage_release.Text + ',' + cf_over_voltage_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:28 2 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 29;
+                newMessage.worf = 1;
+                newMessage.message = cw_under_voltage_detection.Text + ',' + cw_under_voltage_detection_time.Text + ',' + cw_under_voltage_release.Text + ',' + cw_under_voltage_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:29 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+                newMessage.value_number = 29;
+                newMessage.worf = 2;
+                newMessage.message = cf_under_voltage_detection.Text + ',' + cf_under_voltage_detection_time.Text + ',' + cf_under_voltage_release.Text + ',' + cf_under_voltage_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:29 2 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 30;
+                newMessage.worf = 1;
+                newMessage.message = cw_charge_over_current_detection.Text + ',' + cw_charge_over_current_detection_time.Text + ',' + cw_charge_over_current_release.Text + ',' + cw_charge_over_current_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:30 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+                newMessage.value_number = 30;
+                newMessage.worf = 2;
+                newMessage.message = cf_charge_over_current_detection.Text + ',' + cf_charge_over_current_detection_time.Text + ',' + cf_charge_over_current_release.Text + ',' + cf_charge_over_current_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:30 2 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 31;
+                newMessage.worf = 1;
+                newMessage.message = cw_discharge_over_current_detection.Text + ',' + cw_discharge_over_current_detection_time.Text + ',' + cw_discharge_over_current_release.Text + ',' + cw_discharge_over_current_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:31 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+                newMessage.value_number = 31;
+                newMessage.worf = 2;
+                newMessage.message = cf_discharge_over_current_detection.Text + ',' + cf_discharge_over_current_detection_time.Text + ',' + cf_discharge_over_current_release.Text + ',' + cf_discharge_over_current_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:31 2 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 32;
+                newMessage.worf = 1;
+                newMessage.message = cw_over_soc_detection.Text + ',' + cw_over_soc_detection_time.Text + ',' + cw_over_soc_release.Text + ',' + cw_over_soc_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:32 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+                newMessage.value_number = 32;
+                newMessage.worf = 2;
+                newMessage.message = cf_over_soc_detection.Text + ',' + cf_over_soc_detection_time.Text + ',' + cf_over_soc_release.Text + ',' + cf_over_soc_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:32 2 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 33;
+                newMessage.worf = 1;
+                newMessage.message = cw_under_soc_detection.Text + ',' + cw_under_soc_detection_time.Text + ',' + cw_under_soc_release.Text + ',' + cw_under_soc_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:33 1 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+                newMessage.value_number = 33;
+                newMessage.worf = 2;
+                newMessage.message = cf_under_soc_detection.Text + ',' + cf_under_soc_detection_time.Text + ',' + cf_under_soc_release.Text + ',' + cf_under_soc_release_time.Text;
+                TraceManager.AddLog("WRITE #write message $value number:33 2 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 13;
+                newMessage.worf = 16;
+                newMessage.message = setting_bettery_type_cmb.Text;
+                TraceManager.AddLog("WRITE #write message $value number:13 16 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 14;
+                newMessage.worf = 17;
+                newMessage.message = setting_current_direction_cmb.Text;
+                TraceManager.AddLog("WRITE #write message $value number:14 17 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                newMessage.value_number = 15;
+                newMessage.worf = 18;
+                newMessage.message = setting_current_sensor_cmb.Text;
+                TraceManager.AddLog("WRITE #write message $value number:15 18 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
+                if (data_save_command.Checked) {
+                    newMessage.value_number = 0x22;
+                    newMessage.worf = 0x2A;
+                    newMessage.message = "0xFF";
+                    TraceManager.AddLog("WRITE #write message $value number:34 0x2A @message:" + newMessage.message);
+                    send(newMessage);
+                    Thread.Sleep(10);
+                }
+            } catch (Exception ex) {
+                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+            }
+            return;
         }
 
         private async void download_to_bms_btn_Click(object sender, EventArgs e) {
@@ -1542,7 +1786,7 @@ namespace Pack_Monitor {
         }
 
         private void setting_soc_value_KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter && !setting_soc_value.Text.Contains('.') && setting_soc_value.Text != "") {
+            if (e.KeyCode == Keys.Enter && !setting_soc_value.Text.Contains('.') && setting_soc_value.Text != string.Empty) {
                 setting_soc_value.Text += ".0";
             }
         }
@@ -1552,7 +1796,7 @@ namespace Pack_Monitor {
         }
 
         private void setting_soh_value_KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter && !setting_soh_value.Text.Contains('.') && setting_soh_value.Text != "") {
+            if (e.KeyCode == Keys.Enter && !setting_soh_value.Text.Contains('.') && setting_soh_value.Text != string.Empty) {
                 setting_soc_value.Text += ".0";
             }
         }
@@ -1562,7 +1806,7 @@ namespace Pack_Monitor {
         }
 
         private void pw_discharge_over_current_detection_KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter && pw_discharge_over_current_detection.Text != "" && !pw_discharge_over_current_detection.Text.Contains('-')) {
+            if (e.KeyCode == Keys.Enter && pw_discharge_over_current_detection.Text != string.Empty && !pw_discharge_over_current_detection.Text.Contains('-')) {
                 pw_discharge_over_current_detection.Text = "-" + pw_discharge_over_current_detection.Text;
             }
             if(e.KeyCode == Keys.Enter) {
@@ -1571,7 +1815,7 @@ namespace Pack_Monitor {
         }
 
         private void pw_discharge_over_current_release_KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter && pw_discharge_over_current_release.Text != "" && !pw_discharge_over_current_release.Text.Contains('-')) {
+            if (e.KeyCode == Keys.Enter && pw_discharge_over_current_release.Text != string.Empty && !pw_discharge_over_current_release.Text.Contains('-')) {
                 pw_discharge_over_current_release.Text = "-" + pw_discharge_over_current_release.Text;
             }
             if (e.KeyCode == Keys.Enter) {
@@ -1580,7 +1824,7 @@ namespace Pack_Monitor {
         }
 
         private void pf_discharge_over_current_detection_KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter && pf_discharge_over_current_detection.Text != "" && !pf_discharge_over_current_detection.Text.Contains('-')) {
+            if (e.KeyCode == Keys.Enter && pf_discharge_over_current_detection.Text != string.Empty && !pf_discharge_over_current_detection.Text.Contains('-')) {
                 pf_discharge_over_current_detection.Text = "-" + pf_discharge_over_current_detection.Text;
             }
             if (e.KeyCode == Keys.Enter) {
@@ -1589,7 +1833,7 @@ namespace Pack_Monitor {
         }
 
         private void pf_discharge_over_current_release_KeyDown(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter && pf_discharge_over_current_release.Text != "" && !pf_discharge_over_current_release.Text.Contains('-')) {
+            if (e.KeyCode == Keys.Enter && pf_discharge_over_current_release.Text != string.Empty && !pf_discharge_over_current_release.Text.Contains('-')) {
                 pf_discharge_over_current_release.Text = "-" + pf_discharge_over_current_release.Text;
             }
             if (e.KeyCode == Keys.Enter) {
@@ -1779,7 +2023,7 @@ namespace Pack_Monitor {
             try {
                 string file_path;
                 SaveFileDialog openFileDialog = new SaveFileDialog( );
-                if (Properties.Settings.Default.save_file_path == "") {
+                if (Properties.Settings.Default.save_file_path == string.Empty) {
                     Properties.Settings.Default.save_file_path = Directory.GetCurrentDirectory( );
                 }
                 openFileDialog.InitialDirectory = Properties.Settings.Default.save_file_path;
@@ -1900,7 +2144,7 @@ namespace Pack_Monitor {
                 e.Handled = true;
                 SendKeys.Send("{TAB}");
 
-                if (pw_discharge_over_current_detection.Text != "" && !pw_discharge_over_current_detection.Text.Contains('-'))
+                if (pw_discharge_over_current_detection.Text != string.Empty && !pw_discharge_over_current_detection.Text.Contains('-'))
                     pw_discharge_over_current_detection.Text = "-" + pw_discharge_over_current_detection.Text;
             }
         }
@@ -1910,7 +2154,7 @@ namespace Pack_Monitor {
                 e.Handled = true;
                 SendKeys.Send("{TAB}");
 
-                if (pw_discharge_over_current_release.Text != "" && !pw_discharge_over_current_release.Text.Contains('-'))
+                if (pw_discharge_over_current_release.Text != string.Empty && !pw_discharge_over_current_release.Text.Contains('-'))
                     pw_discharge_over_current_release.Text = "-" + pw_discharge_over_current_release.Text;
             }
         }
@@ -1920,7 +2164,7 @@ namespace Pack_Monitor {
                 e.Handled = true;
                 SendKeys.Send("{TAB}");
 
-                if (pf_discharge_over_current_detection.Text != "" && !pf_discharge_over_current_detection.Text.Contains('-'))
+                if (pf_discharge_over_current_detection.Text != string.Empty && !pf_discharge_over_current_detection.Text.Contains('-'))
                     pf_discharge_over_current_detection.Text = "-" + pf_discharge_over_current_detection.Text;
             }
         }
@@ -1930,7 +2174,7 @@ namespace Pack_Monitor {
                 e.Handled = true;
                 SendKeys.Send("{TAB}");
 
-                if (pf_discharge_over_current_release.Text != "" && !pf_discharge_over_current_release.Text.Contains('-'))
+                if (pf_discharge_over_current_release.Text != string.Empty && !pf_discharge_over_current_release.Text.Contains('-'))
                     pf_discharge_over_current_release.Text = "-" + pf_discharge_over_current_release.Text;
             }
 
@@ -1958,7 +2202,7 @@ namespace Pack_Monitor {
         const char _0D = (char)0x0D;
         const char _0A = (char)0x0A;
 
-        string inStream = "";
+        string inStream = string.Empty;
 
         private void rsport_data_receive( ) {
             try {
@@ -1996,16 +2240,27 @@ namespace Pack_Monitor {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
         }
-
+        
         private void button1_Click(object sender, EventArgs e) {
             if (textBox7.Text == "1118") {
                 setting_tab.Enabled = true;
                 tab_control.TabPages.Insert(2, setting_tab);
                 tab_control.SelectedIndex = 2;
                 tab_control.TabPages.Remove(login_tab);
-                textBox7.Text = "";
+                textBox7.Text = string.Empty;
             } else {
                 MessageBox.Show("Incorrect password", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        private void textBox7_KeyPress(object sender, KeyPressEventArgs e) {
+            
+        }
+
+        private void textBox7_KeyDown(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) {
+                button1_Click(sender, e);
+                return;
             }
         }
 
