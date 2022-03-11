@@ -74,8 +74,6 @@ namespace Pack_Monitor {
 
                         connect_state.Text = "Connected - RS232C";
                         combobox_port.Enabled = false;  //COM포트설정 콤보박스 비활성화
-                        data_receive.Interval = 25;
-                        data_receive.Enabled = true;
                         initialize_btn.BackColor = Color.Lime;
                         connect_state.ForeColor = Color.Black;
                     }
