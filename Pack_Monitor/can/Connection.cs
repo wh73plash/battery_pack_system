@@ -1345,7 +1345,6 @@ namespace Pack_Monitor.CAN {
                     return false;
                 } else { //no error
                     TraceManager.AddLog("DISCONNECT #DisConnect  $PCAN Disconnected @No Exception StackTrace");
-                    MessageBox.Show("PCAN DisConnected", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return true;
                 }
             } catch (Exception ex) {
@@ -1375,7 +1374,6 @@ namespace Pack_Monitor.CAN {
                     return false;
                 } else { //NO ERROR
                     TraceManager.AddLog("CONNECT #Connect  $PCAN Connected @No Exception StackTrace");
-                    MessageBox.Show("PCAN Connected", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return true;
                 }
             } catch (Exception ex) {

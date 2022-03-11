@@ -57,6 +57,8 @@ namespace Pack_Monitor {
                         connect_state.ForeColor = Color.Black;
                         is_connected = true;
                         initialize_btn.BackColor = Color.Lime;
+                        data_receive.Interval = 25;
+                        data_receive.Enabled = true;
                     }
                 } else if (rs232_connect.Checked) {
                     if (!rsport.IsOpen) {
@@ -72,6 +74,10 @@ namespace Pack_Monitor {
 
                         connect_state.Text = "Connected - RS232C";
                         combobox_port.Enabled = false;  //COM포트설정 콤보박스 비활성화
+                        data_receive.Interval = 25;
+                        data_receive.Enabled = true;
+                        initialize_btn.BackColor = Color.Lime;
+                        connect_state.ForeColor = Color.Black;
                     }
                 } else {
                     MessageBox.Show("No Connection method has been selected", "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -2207,21 +2213,30 @@ namespace Pack_Monitor {
         private void rsport_data_receive( ) {
             try {
                 //02 30 01 08 04 0d 10 27 00 00 00 00 03
-                int[] datas = new int[13];
-                int cnt = 0;
-                string str = rsport.ReadExisting( );
-                TraceManager.AddLog("rs232c data receive : [" + str + "]");
-                for(int i = 0; i < str.Length; i += 2) {
-                    datas[cnt++] = Convert.ToInt32(str[i + 1].ToString( ) + str[i].ToString( ));
-                }
+                Thread.Sleep(10);
+                int size = rsport.BytesToRead;
 
-                byte[] abuffer = new byte[4];
-                Buffer.BlockCopy(datas, 1, abuffer, 0, 2);
-                int abuff = BitConverter.ToInt32(abuffer, 0);
+                byte[ ] datas = new byte[13];
+                if (rsport.BytesToRead > 1) {
+                    rsport.Read(datas, 0, 13);
+                }
+                string str = string.Empty;
+                foreach (byte x in datas) {
+                    str += x.ToString("x") + " ";
+                }
+                TraceManager.AddLog("rs232c data receive : [" + str + "]");
+                int abuff = Convert.ToInt32((datas[2].ToString("x") + datas[1].ToString("x")).ToString(), 16);
                 TPCANMsg buffer = new TPCANMsg( );
                 buffer.ID = (uint)abuff;
                 buffer.LEN = 8;
-                Buffer.BlockCopy(datas, 4, buffer.DATA, 0, 8);
+                for (int i = 4; i <= 11; ++i) {
+                    buffer.DATA[i - 4] = datas[i];
+                }
+                string bstr = string.Empty;
+                foreach (byte i in buffer.DATA) {
+                    bstr += i + " ";
+                }
+                TraceManager.AddLog("rs232c Data Converted to [" + bstr + "]");
                 Connection.process_message(buffer);
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -2269,6 +2284,9 @@ namespace Pack_Monitor {
                 tab_control.TabPages.Insert(2, login_tab);
                 tab_control.TabPages.Remove(setting_tab);
                 setting_tab.Enabled = false;
+            }
+            if (tab_control.SelectedTab == login_tab) {
+                textBox7.Focus( );
             }
             Connection.reset( );
             if (tab_control.SelectedIndex == 0 && is_communicate) {
