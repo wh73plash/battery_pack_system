@@ -283,7 +283,7 @@ namespace Pack_Monitor {
                         Connection.reset( );
                         Connection.write_message(newMessage);
                     } else if (connect_state.Text == "Connected - RS232C") {
-                        byte[] data = new byte[13];
+                        byte[ ] data = new byte[13];
                         data[0] = 0x02;
                         data[1] = 0x30;
                         data[2] = 0x01;
@@ -296,17 +296,17 @@ namespace Pack_Monitor {
                     }
                     if (Connection.connection_check) {
                         Com_start_btn.BackColor = Color.White;
-                    } else { 
-                        Com_start_btn.BackColor = Color.Lime; 
+                    } else {
+                        Com_start_btn.BackColor = Color.Lime;
                     }
 
-                    if(Connection.connection_check == data_receive_test) {
+                    if (Connection.connection_check == data_receive_test) {
                         ++error_count;
                     }
 
                     data_receive_test = Connection.connection_check;
 
-                    if(error_count >= 5) {
+                    if (error_count >= 5) {
                         error_count = 0;
                         timer_display.Enabled = timer.Enabled = false;
                         Com_start_btn.BackColor = Color.White;
@@ -354,7 +354,7 @@ namespace Pack_Monitor {
             //한줄씩읽고 ','으로 나눠서 순서에 맞게 데이터 세팅
             try {
                 string context = File.ReadAllText(file_path);
-                string[] tmp = context.Split(',');
+                string[ ] tmp = context.Split(',');
                 int cnt = 0;
                 setting_soc_value.Text = tmp[cnt++];
                 setting_soh_value.Text = tmp[cnt++];
@@ -602,7 +602,7 @@ namespace Pack_Monitor {
         }
 
         private string convert_tostring(string a) {
-            a = a.Split(new string[] { " :    " }, StringSplitOptions.None)[1];
+            a = a.Split(new string[ ] { " :    " }, StringSplitOptions.None)[1];
             a = a.Split(' ')[0];
             return a;
         }
@@ -657,7 +657,7 @@ namespace Pack_Monitor {
                 saveFileDialog.Title = "Please specify the path to save";
                 saveFileDialog.OverwritePrompt = true;
                 saveFileDialog.Filter = "CSV Files (*.csv)|*.csv";
-                
+
                 if (saveFileDialog.ShowDialog( ) == DialogResult.OK) {
                     csv_savefile_path = saveFileDialog.FileName;
                     data_save_timer.Interval = 1000;
@@ -1141,7 +1141,11 @@ namespace Pack_Monitor {
 
         private void send(setting_data_set message) {
             byte[ ] data = new byte[13];
-            data[0] = 0x02; data[1] = 0x30; data[2] = 0x01; data[3] = 0x08; data[12] = 0x03;
+            data[0] = 0x02;
+            data[1] = 0x30;
+            data[2] = 0x01;
+            data[3] = 0x08;
+            data[12] = 0x03;
             TPCANMsg buffer = Connection.process_write_message(message);
             for (int i = 0; i < 8; ++i)
                 Buffer.BlockCopy(buffer.DATA, i, data, 4 + i, 1);
@@ -1406,7 +1410,7 @@ namespace Pack_Monitor {
                 setting_cell_life_cycle.Text = Members.celllifecyclesetting;
                 setting_number_of_cell.Text = Members.numberofcell;
 
-                string[] buffer = Members.povervoltage[0].Split(',');
+                string[ ] buffer = Members.povervoltage[0].Split(',');
                 pw_over_voltage_detection.Text = buffer[0];
                 pw_over_voltage_detection_time.Text = buffer[1];
                 pw_over_voltage_release.Text = buffer[2];
@@ -1813,7 +1817,7 @@ namespace Pack_Monitor {
             if (e.KeyCode == Keys.Enter && pw_discharge_over_current_detection.Text != string.Empty && !pw_discharge_over_current_detection.Text.Contains('-')) {
                 pw_discharge_over_current_detection.Text = "-" + pw_discharge_over_current_detection.Text;
             }
-            if(e.KeyCode == Keys.Enter) {
+            if (e.KeyCode == Keys.Enter) {
                 SendKeys.Send("{TAB}");
             }
         }
@@ -1922,7 +1926,8 @@ namespace Pack_Monitor {
         private void bufferfunc( ) {
             try {
                 while (Members.logdata.is_while) {
-                    while (!Members.logdata.nextline) ;
+                    while (!Members.logdata.nextline)
+                        ;
                     set_log_Data( );
                     Members.logdata.nextline = false;
                 }
@@ -1981,7 +1986,7 @@ namespace Pack_Monitor {
         }
 
         private async void log_data_read_Tick(object sender, EventArgs e) {
-            
+
         }
 
         private bool save_logdata(string path) {
@@ -1995,9 +2000,9 @@ namespace Pack_Monitor {
                     TraceManager.AddLog("ERROR   #logdata save to file $The logdata grid is empty");
                     return false;
                 } else
-                    for(int i = 0; i < log_data.Columns.Count; ++i) {
+                    for (int i = 0; i < log_data.Columns.Count; ++i) {
                         csvExport.Write(log_data.Columns[i].HeaderText);
-                        if(i != log_data.Columns.Count - 1)
+                        if (i != log_data.Columns.Count - 1)
                             csvExport.Write(delimiter);
                     }
                 csvExport.Write(csvExport.NewLine);
@@ -2017,7 +2022,7 @@ namespace Pack_Monitor {
                 fs.Close( );
 
                 return true;
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
                 return false;
             }
@@ -2077,11 +2082,11 @@ namespace Pack_Monitor {
         }
 
         private void checkBox1_CheckedChanged(object sender, EventArgs e) {
-            
+
         }
 
         private void checkBox2_CheckedChanged(object sender, EventArgs e) {
-            
+
         }
 
         private void log_data_display_clear_Click(object sender, EventArgs e) {
@@ -2089,11 +2094,11 @@ namespace Pack_Monitor {
         }
 
         private void pw_over_voltage_detection_TextChanged(object sender, EventArgs e) {
-                    
+
         }
 
         private void pw_over_voltage_detection_KeyDown(object sender, KeyEventArgs e) {
-            
+
         }
 
         private void pw_under_soc_detection_TextChanged(object sender, EventArgs e) {
@@ -2210,31 +2215,31 @@ namespace Pack_Monitor {
 
         private void rsport_data_receive( ) {
             try {
-                //02 30 01 08 04 0d 10 27 00 00 00 00 03
                 Thread.Sleep(10);
-                int size = rsport.BytesToRead;
 
                 byte[ ] datas = new byte[13];
-                if (rsport.BytesToRead > 1) {
+                int size = rsport.BytesToRead;
+                if (size > 1)
                     rsport.Read(datas, 0, 13);
-                }
+
                 string str = string.Empty;
-                foreach (byte x in datas) {
+                foreach (byte x in datas)
                     str += x.ToString("x") + " ";
-                }
                 TraceManager.AddLog("rs232c data receive : [" + str + "]");
-                int abuff = Convert.ToInt32((datas[2].ToString("x") + datas[1].ToString("x")).ToString(), 16);
+
+                int abuff = Convert.ToInt32((datas[2].ToString("x") + datas[1].ToString("x")).ToString( ), 16);
+
                 TPCANMsg buffer = new TPCANMsg( );
                 buffer.ID = (uint)abuff;
                 buffer.LEN = 8;
-                for (int i = 4; i <= 11; ++i) {
+                for (int i = 4; i <= 11; ++i)
                     buffer.DATA[i - 4] = datas[i];
-                }
-                string bstr = string.Empty;
-                foreach (byte i in buffer.DATA) {
-                    bstr += i + " ";
-                }
-                TraceManager.AddLog("rs232c Data Converted to [" + bstr + "]");
+
+                str = string.Empty;
+                foreach (byte i in buffer.DATA)
+                    str += i + " ";
+                TraceManager.AddLog("rs232c Data Converted to [" + str + "]");
+
                 Connection.process_message(buffer);
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -2253,7 +2258,7 @@ namespace Pack_Monitor {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
         }
-        
+
         private void button1_Click(object sender, EventArgs e) {
             if (textBox7.Text == "1118") {
                 setting_tab.Enabled = true;
@@ -2267,7 +2272,7 @@ namespace Pack_Monitor {
         }
 
         private void textBox7_KeyPress(object sender, KeyPressEventArgs e) {
-            
+
         }
 
         private void textBox7_KeyDown(object sender, KeyEventArgs e) {
