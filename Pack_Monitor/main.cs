@@ -15,7 +15,6 @@ using System.IO.Ports;
 using LGHBAcsEngine;
 using Peak.Can.Basic;
 using Pack_Monitor.CAN;
-using Pack_Monitor.rs232c;
 
 namespace Pack_Monitor {
     public partial class main : Form {
@@ -293,16 +292,15 @@ namespace Pack_Monitor {
                         data[6] = 0xAA;
                         data[12] = 0x03;
                         rsport.Write(data, 0, 13);
+                        TraceManager.AddLog("rs232c data receive command sent");
                     }
-                    if (Connection.connection_check) {
+                    if (Connection.connection_check)
                         Com_start_btn.BackColor = Color.White;
-                    } else {
+                    else
                         Com_start_btn.BackColor = Color.Lime;
-                    }
 
-                    if (Connection.connection_check == data_receive_test) {
+                    if (Connection.connection_check == data_receive_test)
                         ++error_count;
-                    }
 
                     data_receive_test = Connection.connection_check;
 
@@ -1999,12 +1997,13 @@ namespace Pack_Monitor {
                     MessageBox.Show("The logdata grid is empty !", "ERROR !", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     TraceManager.AddLog("ERROR   #logdata save to file $The logdata grid is empty");
                     return false;
-                } else
+                } else {
                     for (int i = 0; i < log_data.Columns.Count; ++i) {
                         csvExport.Write(log_data.Columns[i].HeaderText);
                         if (i != log_data.Columns.Count - 1)
                             csvExport.Write(delimiter);
                     }
+                }
                 csvExport.Write(csvExport.NewLine);
 
                 foreach (DataGridViewRow row in log_data.Rows)
@@ -2215,30 +2214,32 @@ namespace Pack_Monitor {
 
         private void rsport_data_receive( ) {
             try {
-                Thread.Sleep(10);
-
                 byte[ ] datas = new byte[13];
                 int size = rsport.BytesToRead;
-                if (size > 1)
+                if (size > 1) {
                     rsport.Read(datas, 0, 13);
+                }
 
                 string str = string.Empty;
-                foreach (byte x in datas)
-                    str += x.ToString("x") + " ";
+                for (int i = 0; i < datas.Length; ++i) {
+                    str += datas[i].ToString("x") + " ";
+                }
                 TraceManager.AddLog("rs232c data receive : [" + str + "]");
 
-                int abuff = Convert.ToInt32((datas[2].ToString("x") + datas[1].ToString("x")).ToString( ), 16);
-
                 TPCANMsg buffer = new TPCANMsg( );
+                int abuff = Convert.ToInt32((datas[2].ToString("x") + datas[1].ToString("x")).ToString( ), 16);
                 buffer.ID = (uint)abuff;
+                TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + "]");
                 buffer.LEN = 8;
-                for (int i = 4; i <= 11; ++i)
+                for (int i = 4; i <= 11; ++i) {
                     buffer.DATA[i - 4] = datas[i];
+                }
 
-                str = string.Empty;
-                foreach (byte i in buffer.DATA)
-                    str += i + " ";
-                TraceManager.AddLog("rs232c Data Converted to [" + str + "]");
+                string sstr = string.Empty;
+                foreach (byte i in buffer.DATA) {
+                    sstr += i + " ";
+                }
+                TraceManager.AddLog("rs232c Data Converted to [" + sstr + "]");
 
                 Connection.process_message(buffer);
             } catch (Exception ex) {
@@ -2288,15 +2289,14 @@ namespace Pack_Monitor {
                 tab_control.TabPages.Remove(setting_tab);
                 setting_tab.Enabled = false;
             }
-            if (tab_control.SelectedTab == login_tab) {
+            if (tab_control.SelectedTab == login_tab)
                 textBox7.Focus( );
-            }
+
             Connection.reset( );
-            if (tab_control.SelectedIndex == 0 && is_communicate) {
+            if (tab_control.SelectedIndex == 0 && is_communicate)
                 timer.Enabled = true;
-            } else {
+            else
                 timer.Enabled = false;
-            }
         }
     }
 }
