@@ -58,11 +58,12 @@ namespace Pack_Monitor {
                         initialize_btn.BackColor = Color.Lime;
                         data_receive.Interval = 25;
                         data_receive.Enabled = true;
+                    } else {
+                        MessageBox.Show("");
+                        throw new Exception("");
                     }
                 } else if (rs232_connect.Checked) {
                     if (!rsport.IsOpen) {
-
-                        is_connected = true;
                         rsport.PortName = combobox_port.Text;  //콤보박스의 선택된 COM포트명을 시리얼포트명으로 지정
                         rsport.BaudRate = 19200;  //보레이트 변경이 필요하면 숫자 변경하기
                         rsport.DataBits = 8;
@@ -70,11 +71,16 @@ namespace Pack_Monitor {
                         rsport.Parity = Parity.None;
 
                         rsport.Open( );  //시리얼포트 열기
-
-                        connect_state.Text = "Connected - RS232C";
-                        combobox_port.Enabled = false;  //COM포트설정 콤보박스 비활성화
-                        initialize_btn.BackColor = Color.Lime;
-                        connect_state.ForeColor = Color.Black;
+                        if (rsport.IsOpen) {
+                            is_connected = true;
+                            connect_state.Text = "Connected - RS232C";
+                            combobox_port.Enabled = false;  //COM포트설정 콤보박스 비활성화
+                            initialize_btn.BackColor = Color.Lime;
+                            connect_state.ForeColor = Color.Black;
+                        } else {
+                            MessageBox.Show("");
+                            throw new Exception("");
+                        }
                     }
                 } else {
                     MessageBox.Show("No Connection method has been selected", "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -269,6 +275,8 @@ namespace Pack_Monitor {
 
         private int error_count = 0;
         private bool data_receive_test = false;
+
+
 
         private void timer_Tick(object sender, EventArgs e) {
             try {
@@ -490,7 +498,7 @@ namespace Pack_Monitor {
                 openFileDialog.InitialDirectory = Properties.Settings.Default.save_file_path;
                 openFileDialog.Title = "To Read file location";
                 openFileDialog.DefaultExt = "ion";
-                openFileDialog.Filter = "Setting Data Files (*.ion)|*.ion";
+                openFileDialog.Filter = "Setting Data Files (*.sbt)|*.sbt";
                 openFileDialog.ShowDialog( );
                 if (openFileDialog.FileName.Length <= 0) {
                     throw new Exception("Failed to retrieve file location or lenth is 0");
@@ -727,7 +735,7 @@ namespace Pack_Monitor {
                 saveFile.InitialDirectory = Properties.Settings.Default.save_file_path;
                 saveFile.Title = "To save file location";
                 saveFile.DefaultExt = "ion";
-                saveFile.Filter = "Setting Data Files (*.ion)|*.ion";
+                saveFile.Filter = "Setting Data Files (*.sbt)|*.sbt";
 
                 if (saveFile.ShowDialog( ) == DialogResult.OK) {
                     if (saveFile.FileName.Length <= 0) {
@@ -1858,6 +1866,8 @@ namespace Pack_Monitor {
                     timer.Interval = 1000;
                     timer_display.Interval = 500;
                     if (connect_state.Text == "Connected - CAN") {
+                        Connection.reset( );
+
                         data_receive.Interval = 25;
                         data_receive.Enabled = true;
                     }
@@ -2214,6 +2224,8 @@ namespace Pack_Monitor {
 
         private void rsport_data_receive( ) {
             try {
+                Thread.Sleep(5);
+
                 byte[ ] datas = new byte[13];
                 int size = rsport.BytesToRead;
                 if (size > 1) {
@@ -2227,9 +2239,58 @@ namespace Pack_Monitor {
                 TraceManager.AddLog("rs232c data receive : [" + str + "]");
 
                 TPCANMsg buffer = new TPCANMsg( );
-                int abuff = Convert.ToInt32((datas[2].ToString("x") + datas[1].ToString("x")).ToString( ), 16);
-                buffer.ID = (uint)abuff;
-                TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + "]");
+                uint id_buffer = 0;
+                switch (datas[1]) {
+                    case 0x20:
+                        id_buffer = 0x120;
+                        break;
+                    case 0x21:
+                        id_buffer = 0x121;
+                        break;
+                    case 0x22:
+                        id_buffer = 0x122;
+                        break;
+                    case 0x23:
+                        id_buffer = 0x123;
+                        break;
+                    case 0x24:
+                        id_buffer = 0x124;
+                        break;
+                    case 0x25:
+                        id_buffer = 0x125;
+                        break;
+                    case 0x26:
+                        id_buffer = 0x126;
+                        break;
+                    case 0x27:
+                        id_buffer = 0x127;
+                        break;
+                    case 0x28:
+                        id_buffer = 0x128;
+                        break;
+                    case 0x29:
+                        id_buffer = 0x129;
+                        break;
+
+                    case 0x30:
+                        id_buffer = 0x130;
+                        break;
+
+                    case 0x40:
+                        id_buffer = 0x140;
+                        break;
+                    case 0x41:
+                        id_buffer = 0x141;
+                        break;
+                    case 0x42:
+                        id_buffer = 0x142;
+                        break;
+                    case 0x43:
+                        id_buffer = 0x143;
+                        break;
+                }
+                buffer.ID = id_buffer;
+                TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + " : =>\'" + id_buffer + "\']");
                 buffer.LEN = 8;
                 for (int i = 4; i <= 11; ++i) {
                     buffer.DATA[i - 4] = datas[i];
@@ -2281,6 +2342,10 @@ namespace Pack_Monitor {
                 button1_Click(sender, e);
                 return;
             }
+        }
+
+        private void logo_picturebox_Click(object sender, EventArgs e) {
+
         }
 
         private void tab_control_SelectedIndexChanged(object sender, EventArgs e) {
