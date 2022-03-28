@@ -295,9 +295,9 @@ namespace Pack_Monitor {
                         data[1] = 0x30;
                         data[2] = 0x01;
                         data[3] = 0x08;
-                        data[4] = 0x07;
-                        data[5] = 0x1A;
-                        data[6] = 0xAA;
+                        data[4] = 0x01;
+                        data[5] = 0x0A;
+                        data[6] = 0x11;
                         data[12] = 0x03;
                         rsport.Write(data, 0, 13);
                         TraceManager.AddLog("rs232c data receive command sent");
@@ -1390,6 +1390,7 @@ namespace Pack_Monitor {
                     TraceManager.AddLog("WRITE #write message $value number:34 0x2A @message:" + newMessage.message);
                     send(newMessage);
                     Thread.Sleep(10);
+                    
                 }
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -2224,12 +2225,13 @@ namespace Pack_Monitor {
 
         private void rsport_data_receive( ) {
             try {
-                Thread.Sleep(5);
-
+                Thread.Sleep(10);
                 byte[ ] datas = new byte[13];
                 int size = rsport.BytesToRead;
                 if (size > 1) {
                     rsport.Read(datas, 0, 13);
+                } else {
+                    throw new Exception("receive data byte read failure");
                 }
 
                 string str = string.Empty;
@@ -2271,11 +2273,9 @@ namespace Pack_Monitor {
                     case 0x29:
                         id_buffer = 0x129;
                         break;
-
                     case 0x30:
                         id_buffer = 0x130;
                         break;
-
                     case 0x40:
                         id_buffer = 0x140;
                         break;
@@ -2290,15 +2290,14 @@ namespace Pack_Monitor {
                         break;
                 }
                 buffer.ID = id_buffer;
-                TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + " : =>\'" + id_buffer + "\']");
                 buffer.LEN = 8;
-                for (int i = 4; i <= 11; ++i) {
-                    buffer.DATA[i - 4] = datas[i];
-                }
+                TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + " : =>\'" + id_buffer + "\']");
+
+                Buffer.BlockCopy(datas, 4, buffer.DATA, 0, 8);
 
                 string sstr = string.Empty;
                 foreach (byte i in buffer.DATA) {
-                    sstr += i + " ";
+                    sstr += i.ToString( ) + " ";
                 }
                 TraceManager.AddLog("rs232c Data Converted to [" + sstr + "]");
 
@@ -2313,9 +2312,7 @@ namespace Pack_Monitor {
             //when data receive on rs232c
             try {
                 TraceManager.AddLog("rs232c receive log");
-                Thread buffer = new Thread(( ) => rsport_data_receive( ));
-                buffer.IsBackground = true;
-                buffer.Start( );
+                new Thread(( ) => rsport_data_receive( )).Start( );
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -2349,11 +2346,6 @@ namespace Pack_Monitor {
         }
 
         private void tab_control_SelectedIndexChanged(object sender, EventArgs e) {
-            if (tab_control.SelectedIndex != 2 && setting_tab.Enabled) {
-                tab_control.TabPages.Insert(2, login_tab);
-                tab_control.TabPages.Remove(setting_tab);
-                setting_tab.Enabled = false;
-            }
             if (tab_control.SelectedTab == login_tab)
                 textBox7.Focus( );
 
