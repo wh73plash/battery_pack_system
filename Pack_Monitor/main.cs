@@ -2326,16 +2326,23 @@ namespace Pack_Monitor {
 
         private void rsport_data_receive( ) {
             try {
-                Thread.Sleep(10);
                 byte[ ] datas = new byte[13];
+                byte[ ] read_buffer = new byte[32];
                 int size = rsport.BytesToRead;
                 if (size > 1) {
-                    rsport.Read(datas, 0, 13);
+                    rsport.Read(read_buffer, 0, 32);
                 } else {
                     throw new Exception("receive data byte read failure");
                 }
+                rsport.DiscardInBuffer( );
 
-                string str = string.Empty;
+                int iterator = 0;
+                for (iterator = 0; iterator < 32; ++iterator)
+                    if (read_buffer[iterator] == 0x02 && read_buffer[iterator + 12] == 0x03)
+                        break;
+                Buffer.BlockCopy(read_buffer, iterator, datas, 0, 13);
+
+                string str = "";
                 for (int i = 0; i < datas.Length; ++i) {
                     str += datas[i].ToString("x") + " ";
                 }
