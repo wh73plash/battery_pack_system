@@ -58,29 +58,29 @@ namespace Pack_Monitor {
                         initialize_btn.BackColor = Color.Lime;
                         data_receive.Interval = 25;
                         data_receive.Enabled = true;
+                        TraceManager.AddLog("CONNECT #connected $connected to CAN communication method");
                     } else {
-                        MessageBox.Show("");
-                        throw new Exception("");
+                        MessageBox.Show("Failed to initialize Can communication");
+                        throw new Exception("Failed to initialize Can communication");
                     }
-                } else if (rs232_connect.Checked) {
-                    if (!rsport.IsOpen) {
-                        rsport.PortName = combobox_port.Text;  //콤보박스의 선택된 COM포트명을 시리얼포트명으로 지정
-                        rsport.BaudRate = 19200;  //보레이트 변경이 필요하면 숫자 변경하기
-                        rsport.DataBits = 8;
-                        rsport.StopBits = StopBits.One;
-                        rsport.Parity = Parity.None;
+                } else if (rs232_connect.Checked && !rsport.IsOpen) {
+                    rsport.PortName = combobox_port.Text;  //콤보박스의 선택된 COM포트명을 시리얼포트명으로 지정
+                    rsport.BaudRate = 19200;  //보레이트 변경이 필요하면 숫자 변경하기
+                    rsport.DataBits = 8;
+                    rsport.StopBits = StopBits.One;
+                    rsport.Parity = Parity.None;
 
-                        rsport.Open( );  //시리얼포트 열기
-                        if (rsport.IsOpen) {
-                            is_connected = true;
-                            connect_state.Text = "Connected - RS232C";
-                            combobox_port.Enabled = false;  //COM포트설정 콤보박스 비활성화
-                            initialize_btn.BackColor = Color.Lime;
-                            connect_state.ForeColor = Color.Black;
-                        } else {
-                            MessageBox.Show("");
-                            throw new Exception("");
-                        }
+                    rsport.Open( );  //시리얼포트 열기
+                    if (rsport.IsOpen) {
+                        is_connected = true;
+                        connect_state.Text = "Connected - RS232C";
+                        combobox_port.Enabled = false;  //COM포트설정 콤보박스 비활성화
+                        initialize_btn.BackColor = Color.Lime;
+                        connect_state.ForeColor = Color.Black;
+                        TraceManager.AddLog("CONNECT #connected $connected to RS232C communication method");
+                    } else {
+                        MessageBox.Show("Failed to initialize RS232C communication");
+                        throw new Exception("Failed to initialize RS232C communication");
                     }
                 } else {
                     MessageBox.Show("No Connection method has been selected", "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -332,12 +332,41 @@ namespace Pack_Monitor {
                 if (setting_soc_value.Text == string.Empty) {
                     return;
                 }
-                setting_data_set newMessage = new setting_data_set( );
-                newMessage.ID = protocol.VALUE_SETTING;
-                newMessage.value_number = 2;
-                newMessage.worf = 0x0B;
-                newMessage.message = setting_soc_value.Text;
-                Connection.write_message(newMessage);
+                if (connect_state.Text == "Connected - CAN") {
+                    setting_data_set newMessage = new setting_data_set( );
+                    newMessage.ID = protocol.VALUE_SETTING;
+                    newMessage.value_number = 2;
+                    newMessage.worf = 0x0B;
+                    newMessage.message = setting_soc_value.Text;
+                    Connection.write_message(newMessage);
+                } else if (connect_state.Text == "Connected - RS232C") {
+                    string message = setting_soc_value.Text;
+
+                    byte[ ] data = new byte[13];
+                    data[0] = 0x02;
+                    data[1] = 0x30;
+                    data[2] = 0x01;
+                    data[3] = 0x08;
+                    data[4] = 0x02;
+                    data[5] = 0x0B;
+
+                    //datas
+                    if (message.Contains('.')) {
+                        int buff1 = Convert.ToInt32(message.Replace(".", string.Empty));
+                        byte[ ] buff2 = BitConverter.GetBytes(buff1);
+                        data[6] = buff2[0];
+                        data[7] = buff2[1];
+                    } else {
+                        int buff1 = Convert.ToInt32(message) * 10;
+                        byte[ ] buff2 = BitConverter.GetBytes(buff1);
+                        data[6] = buff2[0];
+                        data[7] = buff2[1];
+                    }
+
+                    data[12] = 0x03;
+                    rsport.Write(data, 0, 13);
+                    TraceManager.AddLog("SUCCESS #write message  $0x130 @" + data[6].ToString( ) + " | " + data[7].ToString( ));
+                }
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -345,12 +374,44 @@ namespace Pack_Monitor {
 
         private void setting_sohset_btn_Click(object sender, EventArgs e) {
             try {
-                setting_data_set newMessage = new setting_data_set( );
-                newMessage.ID = protocol.VALUE_SETTING;
-                newMessage.value_number = 3;
-                newMessage.worf = 0x0C;
-                newMessage.message = setting_soh_value.Text;
-                Connection.write_message(newMessage);
+                if (setting_soh_value.Text == string.Empty) {
+                    return;
+                }
+                if (connect_state.Text == "Connected - CAN") {
+                    setting_data_set newMessage = new setting_data_set( );
+                    newMessage.ID = protocol.VALUE_SETTING;
+                    newMessage.value_number = 3;
+                    newMessage.worf = 0x0C;
+                    newMessage.message = setting_soh_value.Text;
+                    Connection.write_message(newMessage);
+                } else if (connect_state.Text == "Connected - RS232C") {
+                    string message = setting_soh_value.Text;
+
+                    byte[ ] data = new byte[13];
+                    data[0] = 0x02;
+                    data[1] = 0x30;
+                    data[2] = 0x01;
+                    data[3] = 0x08;
+                    data[4] = 0x02;
+                    data[5] = 0x0C;
+
+                    //datas
+                    if (message.Contains('.')) {
+                        int buff1 = Convert.ToInt32(message.Replace(".", string.Empty));
+                        byte[ ] buff2 = BitConverter.GetBytes(buff1);
+                        data[6] = buff2[0];
+                        data[7] = buff2[1];
+                    } else {
+                        int buff1 = Convert.ToInt32(message) * 10;
+                        byte[ ] buff2 = BitConverter.GetBytes(buff1);
+                        data[6] = buff2[0];
+                        data[7] = buff2[1];
+                    }
+
+                    data[12] = 0x03;
+                    rsport.Write(data, 0, 13);
+                    TraceManager.AddLog("SUCCESS #write message  $0x130 @" + data[6].ToString( ) + " | " + data[7].ToString( ));
+                }
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -1590,16 +1651,30 @@ namespace Pack_Monitor {
 
         private async void read_from_bms_btn_Click(object sender, EventArgs e) {
             try {
-                setting_data_set newMessage = new setting_data_set( );
-                newMessage.ID = protocol.VALUE_SETTING;
-                newMessage.value_number = 0x07;
-                newMessage.worf = 0x1A;
-                newMessage.message = "0xAA";
-                Connection.reset( );
-                Connection.write_message(newMessage);
-                Thread buffer = new Thread(( ) => setting_value_buffer( ));
-                buffer.IsBackground = true;
-                buffer.Start( );
+                if (connect_state.Text == "Connected - CAN") {
+                    setting_data_set newMessage = new setting_data_set( );
+                    newMessage.ID = protocol.VALUE_SETTING;
+                    newMessage.value_number = 0x07;
+                    newMessage.worf = 0x1A;
+                    newMessage.message = "0xAA";
+                    Connection.reset( );
+                    Connection.write_message(newMessage);
+                    Thread buffer = new Thread(( ) => setting_value_buffer( ));
+                    buffer.IsBackground = true;
+                    buffer.Start( );
+                } else if (connect_state.Text == "Connected - RS232C") {
+                    byte[ ] data = new byte[13];
+                    data[0] = 0x02;
+                    data[1] = 0x30;
+                    data[2] = 0x01;
+                    data[3] = 0x08;
+                    data[4] = 0x07;
+                    data[5] = 0x1A;
+                    data[6] = 0xAA;
+                    data[12] = 0x03;
+                    rsport.Write(data, 0, 13);
+                    new Thread(( ) => setting_value_buffer( )).Start( );
+                }
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -2067,12 +2142,25 @@ namespace Pack_Monitor {
 
         private void capacity_reset_btn_Click(object sender, EventArgs e) {
             try {
-                setting_data_set newMessage = new setting_data_set( );
-                newMessage.ID = protocol.VALUE_SETTING;
-                newMessage.value_number = 0x08;
-                newMessage.worf = 0x1B;
-                newMessage.message = "0x0A";
-                Connection.write_message(newMessage);
+                if (connect_state.Text == "Connected - CAN") {
+                    setting_data_set newMessage = new setting_data_set( );
+                    newMessage.ID = protocol.VALUE_SETTING;
+                    newMessage.value_number = 0x08;
+                    newMessage.worf = 0x1B;
+                    newMessage.message = "0x0A";
+                    Connection.write_message(newMessage);
+                } else if (connect_state.Text == "Connected - RS232C") {
+                    byte[ ] data = new byte[13];
+                    data[0] = 0x02;
+                    data[1] = 0x30;
+                    data[2] = 0x01;
+                    data[3] = 0x08;
+                    data[4] = 0x08;
+                    data[5] = 0x1B;
+                    data[6] = 0x0A;
+                    data[12] = 0x03;
+                    rsport.Write(data, 0, 13);
+                }
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -2080,12 +2168,25 @@ namespace Pack_Monitor {
 
         private void log_Data_clear_btn_Click(object sender, EventArgs e) {
             try {
-                setting_data_set newMessage = new setting_data_set( );
-                newMessage.ID = protocol.VALUE_SETTING;
-                newMessage.value_number = 0x09;
-                newMessage.worf = 0x1C;
-                newMessage.message = "0xA0";
-                Connection.write_message(newMessage);
+                if (connect_state.Text == "Connected - CAN") {
+                    setting_data_set newMessage = new setting_data_set( );
+                    newMessage.ID = protocol.VALUE_SETTING;
+                    newMessage.value_number = 0x09;
+                    newMessage.worf = 0x1C;
+                    newMessage.message = "0xA0";
+                    Connection.write_message(newMessage);
+                } else if (connect_state.Text == "Connected - RS232C") {
+                    byte[ ] data = new byte[13];
+                    data[0] = 0x02;
+                    data[1] = 0x30;
+                    data[2] = 0x01;
+                    data[3] = 0x08;
+                    data[4] = 0x09;
+                    data[5] = 0x1C;
+                    data[6] = 0xA0;
+                    data[12] = 0x03;
+                    rsport.Write(data, 0, 13);
+                }
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -2342,6 +2443,10 @@ namespace Pack_Monitor {
         }
 
         private void logo_picturebox_Click(object sender, EventArgs e) {
+
+        }
+
+        private void connect_state_Click(object sender, EventArgs e) {
 
         }
 
