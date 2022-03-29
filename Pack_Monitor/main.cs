@@ -2394,6 +2394,8 @@ namespace Pack_Monitor {
                 buffer.LEN = 8;
                 TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + " : =>\'" + id_buffer + "\']");
 
+                buffer.DATA = new byte[8];
+
                 Buffer.BlockCopy(datas, 4, buffer.DATA, 0, 8);
 
                 string sstr = string.Empty;
