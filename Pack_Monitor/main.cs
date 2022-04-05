@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using System.IO.Ports;
 
 using LGHBAcsEngine;
@@ -38,6 +39,7 @@ namespace Pack_Monitor {
         }
 
         private void main_form_FormClosing(object sender, FormClosingEventArgs e) {
+            release_btn_Click(sender, e);
             TraceManager.AddLog("EXIT  #logout  $No Exception Message @No Exception StackTrace");
         }
         private void temperature_data_Click(object sender, EventArgs e) {
@@ -53,14 +55,17 @@ namespace Pack_Monitor {
                 if (can_connect.Checked) {
                     if (Connection.connect( )) {
                         connect_state.Text = "Connected - CAN";
+                        can_connect.Enabled = false;
+                        rs232_connect.Enabled = false;
+                        combobox_port.Enabled = false;
                         connect_state.ForeColor = Color.Black;
                         is_connected = true;
                         initialize_btn.BackColor = Color.Lime;
-                        data_receive.Interval = 25;
+                        data_receive.Interval = 1;
                         data_receive.Enabled = true;
                         TraceManager.AddLog("CONNECT #connected $connected to CAN communication method");
                     } else {
-                        MessageBox.Show("Failed to initialize Can communication");
+                        MessageBox.Show("Failed to initialize Can communication", "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         throw new Exception("Failed to initialize Can communication");
                     }
                 } else if (rs232_connect.Checked && !rsport.IsOpen) {
@@ -74,6 +79,9 @@ namespace Pack_Monitor {
                     if (rsport.IsOpen) {
                         is_connected = true;
                         connect_state.Text = "Connected - RS232C";
+                        can_connect.Enabled = false;
+                        rs232_connect.Enabled = false;
+                        combobox_port.Enabled = false;
                         combobox_port.Enabled = false;  //COM포트설정 콤보박스 비활성화
                         initialize_btn.BackColor = Color.Lime;
                         connect_state.ForeColor = Color.Black;
@@ -105,6 +113,9 @@ namespace Pack_Monitor {
                 connect_state.Text = "UnConnected";
                 data_receive.Enabled = timer.Enabled = timer_display.Enabled = false;
                 is_connected = false;
+                can_connect.Enabled = true;
+                rs232_connect.Enabled = true;
+                combobox_port.Enabled = true;
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -276,7 +287,22 @@ namespace Pack_Monitor {
         private int error_count = 0;
         private bool data_receive_test = false;
 
+        private void process_function( ) {
+            try {
+                byte[ ] datas = new byte[130];
+                rsport.Read(datas, 0, 130);
+                for (int i = 0; i < 130; i += 13) {
+                    byte[ ] buffer_byte = new byte[13];
+                    Buffer.BlockCopy(datas, i, buffer_byte, 0, 13);
+                    process_datas(buffer_byte);
+                }
+                rsport.DiscardInBuffer( );
+            } catch (Exception ex) {
+                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+            }
+        }
 
+        bool is_first = true;
 
         private void timer_Tick(object sender, EventArgs e) {
             try {
@@ -290,6 +316,10 @@ namespace Pack_Monitor {
                         Connection.reset( );
                         Connection.write_message(newMessage);
                     } else if (connect_state.Text == "Connected - RS232C") {
+                        if (!is_first) {
+                            process_function( );
+                        }
+
                         byte[ ] data = new byte[13];
                         data[0] = 0x02;
                         data[1] = 0x30;
@@ -300,6 +330,8 @@ namespace Pack_Monitor {
                         data[6] = 0x11;
                         data[12] = 0x03;
                         rsport.Write(data, 0, 13);
+
+                        is_first = false;
                         TraceManager.AddLog("rs232c data receive command sent");
                     }
                     if (Connection.connection_check)
@@ -309,10 +341,12 @@ namespace Pack_Monitor {
 
                     if (Connection.connection_check == data_receive_test)
                         ++error_count;
+                    else
+                        error_count = 0;
 
                     data_receive_test = Connection.connection_check;
 
-                    if (error_count >= 5) {
+                    if (error_count >= 3) {
                         error_count = 0;
                         timer_display.Enabled = timer.Enabled = false;
                         Com_start_btn.BackColor = Color.White;
@@ -320,6 +354,65 @@ namespace Pack_Monitor {
                         Connection.reset( );
                         MessageBox.Show("Interrupting the communication due to a communication problem", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         TraceManager.AddLog("ERROR   #communicate  $Communicate problem detected @interrupted the communication");
+
+                        //Release
+                        try {
+                            if (connect_state.Text == "Connected - CAN") {
+                                Connection.disconnect( );
+                            } else if (connect_state.Text == "Connected - RS232C") {
+                                rsport.Close( );
+                            }
+                            combobox_port.Enabled = true;
+                            connect_state.ForeColor = Color.Gray;
+                            initialize_btn.BackColor = Color.White;
+                            Com_start_btn.BackColor = Color.White;
+                            connect_state.Text = "UnConnected";
+                            data_receive.Enabled = timer.Enabled = timer_display.Enabled = false;
+                            is_connected = false;
+                        } catch (Exception ex) {
+                            TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+                        }
+                        Thread.Sleep(100);
+
+                        //Connection
+                        try {
+                            if (can_connect.Checked) {
+                                if (Connection.connect( )) {
+                                    connect_state.Text = "Connected - CAN";
+                                    connect_state.ForeColor = Color.Black;
+                                    is_connected = true;
+                                    initialize_btn.BackColor = Color.Lime;
+                                    data_receive.Interval = 1;
+                                    data_receive.Enabled = true;
+                                    TraceManager.AddLog("CONNECT #connected $connected to CAN communication method");
+                                } else {
+                                    throw new Exception("Failed to initialize Can communication");
+                                }
+                            } else if (rs232_connect.Checked && !rsport.IsOpen) {
+                                rsport.PortName = combobox_port.Text;  //콤보박스의 선택된 COM포트명을 시리얼포트명으로 지정
+                                rsport.BaudRate = 19200;  //보레이트 변경이 필요하면 숫자 변경하기
+                                rsport.DataBits = 8;
+                                rsport.StopBits = StopBits.One;
+                                rsport.Parity = Parity.None;
+
+                                rsport.Open( );  //시리얼포트 열기
+                                if (rsport.IsOpen) {
+                                    is_connected = true;
+                                    connect_state.Text = "Connected - RS232C";
+                                    combobox_port.Enabled = false;  //COM포트설정 콤보박스 비활성화
+                                    initialize_btn.BackColor = Color.Lime;
+                                    connect_state.ForeColor = Color.Black;
+                                    TraceManager.AddLog("CONNECT #connected $connected to RS232C communication method");
+                                } else {
+                                    throw new Exception("Failed to initialize RS232C communication");
+                                }
+                            } else {
+                                MessageBox.Show("No Connection method has been selected", "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        } catch (Exception ex) {
+                            TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+                            is_connected = false;
+                        }
                     }
                 }
             } catch (Exception ex) {
@@ -1673,6 +1766,23 @@ namespace Pack_Monitor {
                     data[6] = 0xAA;
                     data[12] = 0x03;
                     rsport.Write(data, 0, 13);
+
+                    Thread.Sleep(1150);
+                    try {
+                        int size = rsport.BytesToRead;
+                        TraceManager.AddLog("Hello world - " + size.ToString( ));
+                        byte[ ] datas = new byte[size];
+                        rsport.Read(datas, 0, size);
+                        for (int i = 0; i < size; i += 13) {
+                            byte[ ] buffer_byte = new byte[13];
+                            Buffer.BlockCopy(datas, i, buffer_byte, 0, 13);
+                            process_datas(buffer_byte);
+                        }
+                        rsport.DiscardInBuffer( );
+                    } catch (Exception ex) {
+                        TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+                    }
+
                     new Thread(( ) => setting_value_buffer( )).Start( );
                 }
             } catch (Exception ex) {
@@ -1944,7 +2054,7 @@ namespace Pack_Monitor {
                     if (connect_state.Text == "Connected - CAN") {
                         Connection.reset( );
 
-                        data_receive.Interval = 25;
+                        data_receive.Interval = 1;
                         data_receive.Enabled = true;
                     }
                     timer.Enabled = timer_display.Enabled = true;
@@ -1962,6 +2072,8 @@ namespace Pack_Monitor {
                 is_communicate = false;
                 timer.Enabled = timer_display.Enabled = false;
                 Com_start_btn.BackColor = Color.White;
+                is_first = true;
+                rsport.DiscardInBuffer( );
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -2010,10 +2122,10 @@ namespace Pack_Monitor {
         private void bufferfunc( ) {
             try {
                 while (Members.logdata.is_while) {
-                    while (!Members.logdata.nextline)
-                        ;
-                    set_log_Data( );
-                    Members.logdata.nextline = false;
+                    if (Members.logdata.nextline) {
+                        new Thread(( ) => set_log_Data( )).Start( );
+                        Members.logdata.nextline = false;
+                    }
                 }
                 return;
             } catch (Exception ex) {
@@ -2022,20 +2134,40 @@ namespace Pack_Monitor {
             }
         }
 
+        private void check_logs( ) {
+            //rs232c
+
+        }
+
         private void log_data_read_btn_Click(object sender, EventArgs e) {
             try {
-                Members.logdata.is_while = true;
+                if (connect_state.Text == "Connected - CAN") {
+                    Members.logdata.is_while = true;
 
-                setting_data_set newMessage = new setting_data_set( );
-                newMessage.ID = protocol.VALUE_SETTING;
-                newMessage.value_number = 0x0A;
-                newMessage.worf = 0x1D;
-                newMessage.message = "0xFF";
-                Connection.write_message(newMessage);
+                    setting_data_set newMessage = new setting_data_set( );
+                    newMessage.ID = protocol.VALUE_SETTING;
+                    newMessage.value_number = 0x0A;
+                    newMessage.worf = 0x1D;
+                    newMessage.message = "0xFF";
+                    Connection.write_message(newMessage);
 
-                Thread buffer = new Thread(( ) => bufferfunc( ));
-                buffer.IsBackground = true;
-                buffer.Start( );
+                    Thread buffer = new Thread(( ) => bufferfunc( ));
+                    buffer.IsBackground = true;
+                    buffer.Start( );
+                } else if (connect_state.Text == "Connected - RS232C") {
+                    byte[ ] data = new byte[13];
+                    data[0] = 0x02;
+                    data[1] = 0x30;
+                    data[2] = 0x01;
+                    data[3] = 0x08;
+                    data[4] = 0x0A;
+                    data[5] = 0x1D;
+                    data[6] = 0xFF;
+                    data[12] = 0x03;
+                    rsport.Write(data, 0, 13);
+
+                    new Thread(( ) => check_logs( )).Start( );
+                }
                 return;
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -2061,9 +2193,10 @@ namespace Pack_Monitor {
                 , Members.logdata.maxcellvoltage, Members.logdata.mincellvoltage, Members.logdata.averagevoltage, Members.logdata.differencecellvoltage
                 , Members.logdata.maxcelltemperature, Members.logdata.mincelltemperature, Members.logdata.averagetemperature, Members.logdata.differencetemperature
                 , Members.logdata.chargedischargecount
+                , Members.logdata.lifecycle
                 , "0x" + Members.logdata.status_c.ToString("X")
                 , "0x" + Members.logdata.status_p.ToString("X")
-                , Members.logdata.lifecycle);
+                );
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -2316,116 +2449,152 @@ namespace Pack_Monitor {
 
         }
 
-        private Object thislock = new Object( );
+        private UInt64 cnt = 0;
 
-        const char _02 = (char)0x02;
-        const char _0D = (char)0x0D;
-        const char _0A = (char)0x0A;
+        public void delay_us(long us) {
+            //Stopwatch 초기화 후 시간 측정 시작
+            Stopwatch startNew = Stopwatch.StartNew( );
+            //설정한 us를 비교에 쓰일 Tick값으로 변환
+            long usDelayTick = (us * Stopwatch.Frequency) / 1000000;
+            //변환된 Tick값보다 클때까지 대기 
+            while (startNew.ElapsedTicks < usDelayTick)
+                ;
+        }
 
-        string inStream = string.Empty;
+        private int buffer_count = 0;
+        private byte[ ] buffer_bytes = new byte[13];
 
-        private void rsport_data_receive( ) {
-            try {
-                byte[ ] datas = new byte[13];
-                byte[ ] read_buffer = new byte[32];
-                int size = rsport.BytesToRead;
-                if (size > 1) {
-                    rsport.Read(read_buffer, 0, 32);
-                } else {
-                    throw new Exception("receive data byte read failure");
-                }
-                rsport.DiscardInBuffer( );
+        private void fix_func(byte[ ] datas) {
+            const byte stx = 0x02, etx = 0x03;
+            int start = -1, end = -1;
+
+            if (datas.Length > 13) {
+                byte[ ] read_buffer = new byte[13];
 
                 int iterator = 0;
-                for (iterator = 0; iterator < 32; ++iterator)
-                    if (read_buffer[iterator] == 0x02 && read_buffer[iterator + 12] == 0x03)
+                for (iterator = 0; iterator < datas.Length; ++iterator)
+                    if (datas[iterator] == 0x02 && datas[iterator + 12] == 0x03)
                         break;
-                Buffer.BlockCopy(read_buffer, iterator, datas, 0, 13);
+                Buffer.BlockCopy(datas, iterator, read_buffer, 0, 13);
 
-                string str = "";
-                for (int i = 0; i < datas.Length; ++i) {
-                    str += datas[i].ToString("x") + " ";
+                if (iterator == 0) {
+                    byte[ ] buffer_any = new byte[datas.Length - 13];
+                    Buffer.BlockCopy(datas, 13, buffer_any, 0, datas.Length - 13);
+                    fix_func(buffer_any);
+                } else {
+                    if (datas.Length - (iterator + 13) > 0) {
+                        byte[ ] buffer_any = new byte[iterator + 1];
+                        Buffer.BlockCopy(datas, 0, buffer_any, 0, iterator);
+                        fix_func(buffer_any);
+
+                        buffer_any = new byte[datas.Length - (iterator + 13)];
+                        Buffer.BlockCopy(datas, iterator + 13, buffer_any, 0, datas.Length - (iterator + 13));
+                        fix_func(buffer_any);
+                    } else {
+                        byte[ ] buffer_any = new byte[iterator + 1];
+                        Buffer.BlockCopy(datas, 0, buffer_any, 0, iterator);
+                        fix_func(buffer_any);
+                    }
                 }
-                TraceManager.AddLog("rs232c data receive : [" + str + "]");
-
-                TPCANMsg buffer = new TPCANMsg( );
-                uint id_buffer = 0;
-                switch (datas[1]) {
-                    case 0x20:
-                        id_buffer = 0x120;
-                        break;
-                    case 0x21:
-                        id_buffer = 0x121;
-                        break;
-                    case 0x22:
-                        id_buffer = 0x122;
-                        break;
-                    case 0x23:
-                        id_buffer = 0x123;
-                        break;
-                    case 0x24:
-                        id_buffer = 0x124;
-                        break;
-                    case 0x25:
-                        id_buffer = 0x125;
-                        break;
-                    case 0x26:
-                        id_buffer = 0x126;
-                        break;
-                    case 0x27:
-                        id_buffer = 0x127;
-                        break;
-                    case 0x28:
-                        id_buffer = 0x128;
-                        break;
-                    case 0x29:
-                        id_buffer = 0x129;
-                        break;
-                    case 0x30:
-                        id_buffer = 0x130;
-                        break;
-                    case 0x40:
-                        id_buffer = 0x140;
-                        break;
-                    case 0x41:
-                        id_buffer = 0x141;
-                        break;
-                    case 0x42:
-                        id_buffer = 0x142;
-                        break;
-                    case 0x43:
-                        id_buffer = 0x143;
-                        break;
+            } else {
+                for (int i = 0; i < datas.Length; ++i)
+                    if (datas[i] == stx)
+                        start = i; 
+                for (int i = datas.Length - 1; i >= 0; --i)
+                    if (datas[i] == etx)
+                        end = i;
+                if (start != 0 && end == -1) {
+                    buffer_count = datas.Length - 1;
+                    Buffer.BlockCopy(datas, 0, buffer_bytes, 0, buffer_count - 1);
+                } else if (start == -1 && end != 0) {
+                    Buffer.BlockCopy(datas, 0, buffer_bytes, buffer_count, end - buffer_count);
+                    process_datas(buffer_bytes);
+                    buffer_bytes = new byte[13];
+                    buffer_count = 0;
                 }
-                buffer.ID = id_buffer;
-                buffer.LEN = 8;
-                TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + " : =>\'" + id_buffer + "\']");
-
-                buffer.DATA = new byte[8];
-
-                Buffer.BlockCopy(datas, 4, buffer.DATA, 0, 8);
-
-                string sstr = string.Empty;
-                foreach (byte i in buffer.DATA) {
-                    sstr += i.ToString( ) + " ";
-                }
-                TraceManager.AddLog("rs232c Data Converted to [" + sstr + "]");
-
-                Connection.process_message(buffer);
-            } catch (Exception ex) {
-                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
             return;
         }
 
-        private void rsport_DataReceived(object sender, SerialDataReceivedEventArgs e) {
-            //when data receive on rs232c
-            try {
-                TraceManager.AddLog("rs232c receive log");
-                new Thread(( ) => rsport_data_receive( )).Start( );
-            } catch (Exception ex) {
-                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+        private void process_datas(byte[ ] datas) {
+            string str = "";
+            for (int i = 0; i < datas.Length; ++i) {
+                str += datas[i].ToString("x") + " ";
             }
+            TraceManager.AddLog("rs232c data receive : [" + str + "]");
+
+            TPCANMsg buffer = new TPCANMsg( );
+            uint id_buffer = 0;
+            switch (datas[1]) {
+                case 0x20:
+                    id_buffer = 0x120;
+                    break;
+                case 0x21:
+                    id_buffer = 0x121;
+                    break;
+                case 0x22:
+                    id_buffer = 0x122;
+                    break;
+                case 0x23:
+                    id_buffer = 0x123;
+                    break;
+                case 0x24:
+                    id_buffer = 0x124;
+                    break;
+                case 0x25:
+                    id_buffer = 0x125;
+                    break;
+                case 0x26:
+                    id_buffer = 0x126;
+                    break;
+                case 0x27:
+                    id_buffer = 0x127;
+                    break;
+                case 0x28:
+                    id_buffer = 0x128;
+                    break;
+                case 0x29:
+                    id_buffer = 0x129;
+                    break;
+                case 0x30:
+                    id_buffer = 0x130;
+                    break;
+                case 0x40:
+                    id_buffer = 0x140;
+                    break;
+                case 0x41:
+                    id_buffer = 0x141;
+                    break;
+                case 0x42:
+                    id_buffer = 0x142;
+                    break;
+                case 0x43:
+                    id_buffer = 0x143;
+                    break;
+            }
+            buffer.ID = id_buffer;
+            buffer.LEN = 8;
+            TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + " : =>\'" + id_buffer + "\']");
+
+            buffer.DATA = new byte[8];
+
+            Buffer.BlockCopy(datas, 4, buffer.DATA, 0, 8);
+
+            string sstr = string.Empty;
+            foreach (byte i in buffer.DATA) {
+                sstr += i.ToString( ) + " ";
+            }
+            TraceManager.AddLog("rs232c Data Converted to [" + sstr + "]");
+
+            Connection.process_message(buffer);
+        }
+
+        private void rsport_data_receive( ) {
+            
+        }
+
+        private void rsport_DataReceived(object sender, SerialDataReceivedEventArgs e) {
+            
         }
 
         private void button1_Click(object sender, EventArgs e) {
@@ -2459,15 +2628,22 @@ namespace Pack_Monitor {
 
         }
 
+        private void label1_Click(object sender, EventArgs e) {
+
+        }
+
+        private void log_data_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e) {
+            log_data.FirstDisplayedScrollingRowIndex = log_data.Rows.Count - 1;
+        }
+
         private void tab_control_SelectedIndexChanged(object sender, EventArgs e) {
             if (tab_control.SelectedTab == login_tab)
                 textBox7.Focus( );
 
-            Connection.reset( );
-            if (tab_control.SelectedIndex == 0 && is_communicate)
-                timer.Enabled = true;
-            else
+            if (tab_control.SelectedTab == log_tab)
                 timer.Enabled = false;
+            else
+                timer.Enabled = true;
         }
     }
 }

@@ -947,7 +947,7 @@ namespace Pack_Monitor.CAN {
 
                         Members.logdata.logdatanumber = arr[0].ToString( );
                         Members.logdata.logdatacount = arr[1].ToString( );
-                        Members.logdata.packvoltage = (arr[2] / 100).ToString( ) + (arr[2] % 100).ToString("D2");
+                        Members.logdata.packvoltage = (arr[2] / 100).ToString( ) + "." + (arr[2] % 100).ToString("D2");
                         if(arr[3] >= 0x8000) {
                             arr[3] = 0xFFFF - (arr[3] - 1);
                             Members.logdata.packcurrent = "-" + (arr[3] / 10).ToString( ) + "." + (arr[3] % 10).ToString( );
