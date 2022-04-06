@@ -33,6 +33,15 @@ namespace Pack_Monitor {
                 combobox_port.DataSource = SerialPort.GetPortNames( );
                 tab_control.TabPages.Remove(setting_tab);
                 setting_tab.Enabled = false;
+
+                StreamReader SR = new StreamReader("C:\\ACS\\Pack_Monitor\\Logs\\list.sbt");
+                string buffer;
+                int cnt = 0;
+                while ((buffer = SR.ReadLine( )) != null) {
+                    setting_bettery_type_cmb.Items.Add(buffer);
+                }
+                SR.Close( );
+                setting_bettery_type_cmb.Items.Clear( );
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR #Error(1)  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -40,6 +49,13 @@ namespace Pack_Monitor {
 
         private void main_form_FormClosing(object sender, FormClosingEventArgs e) {
             release_btn_Click(sender, e);
+
+            StreamWriter sw = new StreamWriter("C:\\ACS\\Pack_Monitor\\Logs\\list.sbt");
+            for (int i = 0; i < setting_bettery_type_cmb.Items.Count; ++i) {
+                sw.WriteLine(setting_bettery_type_cmb.Items[i].ToString());
+            }
+            sw.Close( );
+
             TraceManager.AddLog("EXIT  #logout  $No Exception Message @No Exception StackTrace");
         }
         private void temperature_data_Click(object sender, EventArgs e) {
@@ -1544,7 +1560,7 @@ namespace Pack_Monitor {
                     TraceManager.AddLog("WRITE #write message $value number:34 0x2A @message:" + newMessage.message);
                     send(newMessage);
                     Thread.Sleep(10);
-                    
+
                 }
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -2059,7 +2075,7 @@ namespace Pack_Monitor {
                     }
                     timer.Enabled = timer_display.Enabled = true;
                 } else {
-                    MessageBox.Show("The Communication is not Initialized", "Warning !", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(new Form { TopMost = true }, "The Communication is not Initialized", "Warning !", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
             } catch (Exception ex) {
@@ -2499,7 +2515,7 @@ namespace Pack_Monitor {
             } else {
                 for (int i = 0; i < datas.Length; ++i)
                     if (datas[i] == stx)
-                        start = i; 
+                        start = i;
                 for (int i = datas.Length - 1; i >= 0; --i)
                     if (datas[i] == etx)
                         end = i;
@@ -2590,11 +2606,11 @@ namespace Pack_Monitor {
         }
 
         private void rsport_data_receive( ) {
-            
+
         }
 
         private void rsport_DataReceived(object sender, SerialDataReceivedEventArgs e) {
-            
+
         }
 
         private void button1_Click(object sender, EventArgs e) {
@@ -2634,6 +2650,21 @@ namespace Pack_Monitor {
 
         private void log_data_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e) {
             log_data.FirstDisplayedScrollingRowIndex = log_data.Rows.Count - 1;
+        }
+
+        private int current__ = -10;
+        private void setting_bettery_type_cmb_SelectedIndexChanged(object sender, EventArgs e) {
+            current__ = setting_bettery_type_cmb.SelectedIndex;
+        }
+
+        private void setting_bettery_type_cmb_TextChanged(object sender, EventArgs e) {
+            try {
+                if (current__ == setting_bettery_type_cmb.SelectedIndex) {
+                    setting_bettery_type_cmb.Items[current__] = setting_bettery_type_cmb.Text;
+                }
+            } catch (Exception ex) {
+                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+            }
         }
 
         private void tab_control_SelectedIndexChanged(object sender, EventArgs e) {
