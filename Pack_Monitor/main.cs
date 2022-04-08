@@ -12,12 +12,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO.Ports;
+using System.Runtime.InteropServices;
 
 using LGHBAcsEngine;
 using Peak.Can.Basic;
 using Pack_Monitor.CAN;
 
 namespace Pack_Monitor {
+    
+
     public partial class main : Form {
         bool is_communicate = false, is_connected = false;
         public UInt16 check_enable = 0;
@@ -27,6 +30,8 @@ namespace Pack_Monitor {
             InitializeComponent( );
         }
 
+        private List<string> battery_type_list = new List<string>( );
+
         public void start_setting( ) {
             try {
                 TraceManager.AddLog("ENTER #login   $No Exception Message @No Exception StackTrace");
@@ -34,14 +39,25 @@ namespace Pack_Monitor {
                 tab_control.TabPages.Remove(setting_tab);
                 setting_tab.Enabled = false;
 
-                StreamReader SR = new StreamReader("C:\\ACS\\Pack_Monitor\\Logs\\list.sbt");
-                string buffer;
-                int cnt = 0;
-                while ((buffer = SR.ReadLine( )) != null) {
-                    setting_bettery_type_cmb.Items.Add(buffer);
+                FileInfo fi = new FileInfo("battery_type_list.sbt");
+                if (fi.Exists) {
+                    StreamReader SR = new StreamReader("battery_type_list.sbt");
+
+                    setting_bettery_type_cmb.Items.Clear( );
+                    string buffer;
+                    while ((buffer = SR.ReadLine( )) != null) {
+                        battery_type_list.Add(buffer);
+                        setting_bettery_type_cmb.Items.Add(buffer);
+                    }
+                    SR.Close( );
+                } else {
+                    StreamWriter sw = new StreamWriter("battery_type_list.sbt");
+
+                    for (int i = 0; i < setting_bettery_type_cmb.Items.Count; ++i) {
+                        sw.WriteLine(setting_bettery_type_cmb.Items[i].ToString( ));
+                    }
+                    sw.Close( );
                 }
-                SR.Close( );
-                setting_bettery_type_cmb.Items.Clear( );
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR #Error(1)  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -49,13 +65,7 @@ namespace Pack_Monitor {
 
         private void main_form_FormClosing(object sender, FormClosingEventArgs e) {
             release_btn_Click(sender, e);
-
-            StreamWriter sw = new StreamWriter("C:\\ACS\\Pack_Monitor\\Logs\\list.sbt");
-            for (int i = 0; i < setting_bettery_type_cmb.Items.Count; ++i) {
-                sw.WriteLine(setting_bettery_type_cmb.Items[i].ToString());
-            }
-            sw.Close( );
-
+            Properties.Settings.Default.Save( );
             TraceManager.AddLog("EXIT  #logout  $No Exception Message @No Exception StackTrace");
         }
         private void temperature_data_Click(object sender, EventArgs e) {
@@ -132,6 +142,8 @@ namespace Pack_Monitor {
                 can_connect.Enabled = true;
                 rs232_connect.Enabled = true;
                 combobox_port.Enabled = true;
+
+                
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -320,6 +332,7 @@ namespace Pack_Monitor {
 
         bool is_first = true;
 
+        private int com_cnt_ = 0;
         private void timer_Tick(object sender, EventArgs e) {
             try {
                 if (is_connected) {
@@ -350,10 +363,13 @@ namespace Pack_Monitor {
                         is_first = false;
                         TraceManager.AddLog("rs232c data receive command sent");
                     }
-                    if (Connection.connection_check)
+                    if (Connection.connection_check) {
                         Com_start_btn.BackColor = Color.White;
-                    else
+                        com_cnt.Text = (++com_cnt_).ToString( );
+                    } else {
                         Com_start_btn.BackColor = Color.Lime;
+                        com_cnt.Text = (++com_cnt_).ToString( );
+                    }
 
                     if (Connection.connection_check == data_receive_test)
                         ++error_count;
@@ -649,9 +665,19 @@ namespace Pack_Monitor {
                 checkBox9.Checked = Convert.ToBoolean(tmp[cnt++]);
                 checkBox8.Checked = Convert.ToBoolean(tmp[cnt++]);
                 checkBox7.Checked = Convert.ToBoolean(tmp[cnt++]);
-                setting_bettery_type_cmb.Text = tmp[cnt++];
-                setting_current_direction_cmb.Text = tmp[cnt++];
-                setting_current_sensor_cmb.Text = tmp[cnt];
+                setting_bettery_type_cmb.Text = battery_type_list[Convert.ToInt32(tmp[cnt++])];
+                if (tmp[cnt++] == "0") {
+                    setting_current_direction_0.Checked = true;
+                } else {
+                    setting_current_direction_1.Checked = true;
+                }
+                if (tmp[cnt] == "50") {
+                    setting_current_sensor_50.Checked = true;
+                } else if (tmp[cnt] == "100") {
+                    setting_current_sensor_100.Checked = true;
+                } else {
+                    setting_current_sensor_200.Checked = true;
+                }
                 return;
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -674,6 +700,12 @@ namespace Pack_Monitor {
                     throw new Exception("Failed to retrieve file location or lenth is 0");
                 } else {
                     file_path = openFileDialog.FileName;
+                    string[ ] buffer_array = openFileDialog.FileName.Split('\\');
+                    string buffer_string = string.Empty;
+                    for (int i = 0; i < buffer_array.Length - 1; ++i) {
+                        buffer_string += buffer_array[i];
+                    }
+                    Properties.Settings.Default.save_file_path = buffer_string;
                 }
                 setting_values_process(file_path);
                 TraceManager.AddLog("FILEREAD #Setting file read @read from : " + file_path);
@@ -840,6 +872,13 @@ namespace Pack_Monitor {
                     data_save_timer.Enabled = true;
                     data_save_btn.Text = "Saving...";
                     data_save_btn.BackColor = Color.Lime;
+
+                    string[ ] buffer_array = saveFileDialog.FileName.Split('\\');
+                    string buffer_string = string.Empty;
+                    for (int i = 0; i < buffer_array.Length - 1; ++i) {
+                        buffer_string += buffer_array[i];
+                    }
+                    Properties.Settings.Default.save_file_path = buffer_string;
                 }
             } else {
                 data_save_timer.Enabled = false;
@@ -855,6 +894,15 @@ namespace Pack_Monitor {
         private void wrtie_setting_value_to_file(string path) {
             //경로 파일 생성 이후 setting에있는 모든 데이터 순차적으로 입력
             try {
+                string buff = setting_current_direction_0.Checked == true ? "0" : "1";
+                string buffer;
+                if (setting_current_sensor_50.Checked) {
+                    buffer = "50";
+                } else if (setting_current_sensor_100.Checked) {
+                    buffer = "100";
+                } else {
+                    buffer = "200";
+                }
                 string data = setting_soc_value.Text + ',' + setting_soh_value.Text + ',' + pw_over_voltage_detection.Text + ',' + pw_over_voltage_detection_time.Text + ',' + pw_over_voltage_release.Text + ',' +
                 pw_over_voltage_release_time.Text + ',' + pf_over_voltage_detection.Text + ',' + pf_over_voltage_detection_time.Text + ',' + pf_over_voltage_release.Text + ',' + pf_over_voltage_release_time.Text + ',' +
                 pw_under_voltage_detection.Text + ',' + pw_under_voltage_detection_time.Text + ',' + pw_under_voltage_release.Text + ',' + pw_under_voltage_release_time.Text + ',' +
@@ -883,8 +931,8 @@ namespace Pack_Monitor {
                 setting_battery_capacity.Text + ',' + setting_cell_life_cycle.Text + ',' + setting_number_of_cell.Text + ',' + setting_cell_balancing_start_v.Text + ',' +
                 p_overvoltage_ch.Checked + ',' + p_undervoltage_ch.Checked + ',' + p_chargeovercurrent_ch.Checked + ',' + p_dischargeovercurrent_ch.Checked + ',' +
                 p_oversoc_ch.Checked + ',' + p_undersoc_ch.Checked + ',' + p_undersoh_ch.Checked + ',' + checkBox12.Checked + ',' + checkBox11.Checked + ',' +
-                checkBox10.Checked + ',' + checkBox9.Checked + ',' + checkBox8.Checked + ',' + checkBox7.Checked + ',' + setting_bettery_type_cmb.Text
-                + ',' + setting_current_direction_cmb.Text + ',' + setting_current_sensor_cmb.Text + ',';
+                checkBox10.Checked + ',' + checkBox9.Checked + ',' + checkBox8.Checked + ',' + checkBox7.Checked + ',' + setting_bettery_type_cmb.SelectedIndex.ToString()
+                + ',' + buff + ',' + buffer + ',';
                 StreamWriter fp;
                 fp = File.AppendText(path);
                 fp.Write(data);
@@ -911,7 +959,13 @@ namespace Pack_Monitor {
                     if (saveFile.FileName.Length <= 0) {
                         throw new Exception("Failed to retrieve file location or lenth is 0");
                     } else {
-                        file_path = saveFile.FileName.ToString( );
+                        file_path = saveFile.FileName;
+                        string[ ] buffer_array = saveFile.FileName.Split('\\');
+                        string buffer_string = string.Empty;
+                        for (int i = 0; i < buffer_array.Length - 1; ++i) {
+                            buffer_string += buffer_array[i];
+                        }
+                        Properties.Settings.Default.save_file_path = buffer_string;
                         wrtie_setting_value_to_file(file_path);
                         TraceManager.AddLog("SUCCESS #setting_log_writed $log file path : " + file_path);
                     }
@@ -1280,21 +1334,29 @@ namespace Pack_Monitor {
 
                 newMessage.value_number = 13;
                 newMessage.worf = 16;
-                newMessage.message = setting_bettery_type_cmb.Text;
+                newMessage.message = setting_bettery_type_cmb.SelectedIndex.ToString( );
                 TraceManager.AddLog("WRITE #write message $value number:13 16 @message:" + newMessage.message);
                 Connection.write_message(newMessage);
                 Thread.Sleep(10);
 
                 newMessage.value_number = 14;
                 newMessage.worf = 17;
-                newMessage.message = setting_current_direction_cmb.Text;
+                string buff = setting_current_direction_0.Checked == true ? "0" : "1";
+                newMessage.message = buff;
                 TraceManager.AddLog("WRITE #write message $value number:14 17 @message:" + newMessage.message);
                 Connection.write_message(newMessage);
                 Thread.Sleep(10);
 
                 newMessage.value_number = 15;
                 newMessage.worf = 18;
-                newMessage.message = setting_current_sensor_cmb.Text;
+                if (setting_current_sensor_50.Checked) {
+                    buff = "50";
+                } else if (setting_current_sensor_100.Checked) {
+                    buff = "100";
+                } else {
+                    buff = "200";
+                }
+                newMessage.message = buff;
                 TraceManager.AddLog("WRITE #write message $value number:15 18 @message:" + newMessage.message);
                 Connection.write_message(newMessage);
                 Thread.Sleep(10);
@@ -1534,21 +1596,29 @@ namespace Pack_Monitor {
 
                 newMessage.value_number = 13;
                 newMessage.worf = 16;
-                newMessage.message = setting_bettery_type_cmb.Text;
+                newMessage.message = setting_bettery_type_cmb.SelectedIndex.ToString( );
                 TraceManager.AddLog("WRITE #write message $value number:13 16 @message:" + newMessage.message);
                 send(newMessage);
                 Thread.Sleep(10);
 
                 newMessage.value_number = 14;
                 newMessage.worf = 17;
-                newMessage.message = setting_current_direction_cmb.Text;
+                string buff = setting_current_direction_0.Checked == true ? "0" : "1";
+                newMessage.message = buff;
                 TraceManager.AddLog("WRITE #write message $value number:14 17 @message:" + newMessage.message);
                 send(newMessage);
                 Thread.Sleep(10);
 
                 newMessage.value_number = 15;
                 newMessage.worf = 18;
-                newMessage.message = setting_current_sensor_cmb.Text;
+                if (setting_current_sensor_50.Checked) {
+                    buff = "50";
+                } else if (setting_current_sensor_100.Checked) {
+                    buff = "100";
+                } else {
+                    buff = "200";
+                }
+                newMessage.message = buff;
                 TraceManager.AddLog("WRITE #write message $value number:15 18 @message:" + newMessage.message);
                 send(newMessage);
                 Thread.Sleep(10);
@@ -1725,9 +1795,21 @@ namespace Pack_Monitor {
                 cf_under_soc_release.Text = buffer[2];
                 cf_under_soc_release_time.Text = buffer[3];
 
-                setting_current_sensor_cmb.Text = Members.current_sensor_type;
-                setting_current_direction_cmb.Text = Members.current_direction;
-                setting_bettery_type_cmb.Text = Members.battery_type;
+                if (Members.current_sensor_type == "50") {
+                    setting_current_sensor_50.Checked = true;
+                } else if (Members.current_sensor_type == "100") {
+                    setting_current_sensor_100.Checked = true;
+                } else {
+                    setting_current_sensor_200.Checked = true;
+                }
+
+                if (Members.current_direction == "0") {
+                    setting_current_direction_0.Checked = true;
+                } else {
+                    setting_current_direction_1.Checked = true;
+                }
+                int index_buffer = Convert.ToInt32(Members.battery_type);
+                setting_bettery_type_cmb.Text = battery_type_list[index_buffer];
 
                 string bin = Convert.ToString(Members.check_enable_buffer, 2).PadLeft(16, '0');
                 p_overvoltage_ch.Checked = bin[15] == '1';
@@ -2064,6 +2146,9 @@ namespace Pack_Monitor {
         private void Com_start_btn_Click(object sender, EventArgs e) {
             try {
                 if (is_connected) {
+                    com_cnt.Text = "0";
+                    com_cnt_ = 0;
+
                     is_communicate = true;
                     timer.Interval = 1000;
                     timer_display.Interval = 500;
@@ -2090,6 +2175,8 @@ namespace Pack_Monitor {
                 Com_start_btn.BackColor = Color.White;
                 is_first = true;
                 rsport.DiscardInBuffer( );
+                com_cnt.Text = "0";
+                com_cnt_ = 0;
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -2152,7 +2239,29 @@ namespace Pack_Monitor {
 
         private void check_logs( ) {
             //rs232c
-
+            try {
+                int size_buffer = rsport.BytesToRead;
+                while (true) {
+                    Thread.Sleep(100);
+                    if (size_buffer == rsport.BytesToRead) {
+                        break;
+                    } else {
+                        size_buffer = rsport.BytesToRead;
+                    }
+                }
+                byte[ ] datas = new byte[1024];
+                rsport.Read(datas, 0, 1024);
+                for (int i = 0; i < 1024; i += 13) {
+                    byte[ ] buffer_byte = new byte[13];
+                    Buffer.BlockCopy(datas, i, buffer_byte, 0, 13);
+                    log_data_process_datas(buffer_byte);
+                    new Thread(( ) => bufferfunc( )).Start( );
+                    Thread.Sleep(100);
+                }
+                rsport.DiscardInBuffer( );
+            } catch (Exception ex) {
+                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+            }
         }
 
         private void log_data_read_btn_Click(object sender, EventArgs e) {
@@ -2171,6 +2280,8 @@ namespace Pack_Monitor {
                     buffer.IsBackground = true;
                     buffer.Start( );
                 } else if (connect_state.Text == "Connected - RS232C") {
+                    Members.logdata.is_while = true;
+
                     byte[ ] data = new byte[13];
                     data[0] = 0x02;
                     data[1] = 0x30;
@@ -2278,6 +2389,12 @@ namespace Pack_Monitor {
                     throw new Exception("Failed to retrieve file location or lenth is 0");
                 } else {
                     file_path = openFileDialog.FileName;
+                    string[ ] buffer_array = openFileDialog.FileName.Split('\\');
+                    string buffer_string = string.Empty;
+                    for (int i = 0; i < buffer_array.Length - 1; ++i) {
+                        buffer_string += buffer_array[i];
+                    }
+                    Properties.Settings.Default.save_file_path = buffer_string;
                 }
                 if (save_logdata(file_path)) {
                     TraceManager.AddLog("LOGSAVE #logdata save file @saved to : " + file_path);
@@ -2465,8 +2582,6 @@ namespace Pack_Monitor {
 
         }
 
-        private UInt64 cnt = 0;
-
         public void delay_us(long us) {
             //Stopwatch 초기화 후 시간 측정 시작
             Stopwatch startNew = Stopwatch.StartNew( );
@@ -2532,77 +2647,158 @@ namespace Pack_Monitor {
             return;
         }
 
+        private void log_data_process_datas(byte[ ] datas) {
+            try {
+                string str = "";
+                for (int i = 0; i < datas.Length; ++i) {
+                    str += datas[i].ToString("x") + " ";
+                }
+                TraceManager.AddLog("rs232c data receive : [" + str + "]");
+
+                TPCANMsg buffer = new TPCANMsg( );
+                uint id_buffer = 0;
+                switch (datas[1]) {
+                    case 0x20:
+                        id_buffer = 0x120;
+                        break;
+                    case 0x21:
+                        id_buffer = 0x121;
+                        break;
+                    case 0x22:
+                        id_buffer = 0x122;
+                        break;
+                    case 0x23:
+                        id_buffer = 0x123;
+                        break;
+                    case 0x24:
+                        id_buffer = 0x124;
+                        break;
+                    case 0x25:
+                        id_buffer = 0x125;
+                        break;
+                    case 0x26:
+                        id_buffer = 0x126;
+                        break;
+                    case 0x27:
+                        id_buffer = 0x127;
+                        break;
+                    case 0x28:
+                        id_buffer = 0x128;
+                        break;
+                    case 0x29:
+                        id_buffer = 0x129;
+                        break;
+                    case 0x30:
+                        id_buffer = 0x130;
+                        break;
+                    case 0x40:
+                        id_buffer = 0x140;
+                        break;
+                    case 0x41:
+                        id_buffer = 0x141;
+                        break;
+                    case 0x42:
+                        id_buffer = 0x142;
+                        break;
+                    case 0x43:
+                        id_buffer = 0x143;
+                        break;
+                }
+                buffer.ID = id_buffer;
+                buffer.LEN = 8;
+                TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + " : =>\'" + id_buffer + "\']");
+
+                buffer.DATA = new byte[8];
+
+                Buffer.BlockCopy(datas, 4, buffer.DATA, 0, 8);
+
+                string sstr = string.Empty;
+                foreach (byte i in buffer.DATA) {
+                    sstr += i.ToString( ) + " ";
+                }
+                TraceManager.AddLog("rs232c Data Converted to [" + sstr + "]");
+
+                Connection.process_message(buffer);
+            } catch (Exception ex) {
+                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+            }
+        }
+
         private void process_datas(byte[ ] datas) {
-            string str = "";
-            for (int i = 0; i < datas.Length; ++i) {
-                str += datas[i].ToString("x") + " ";
+            try {
+                string str = "";
+                for (int i = 0; i < datas.Length; ++i) {
+                    str += datas[i].ToString("x") + " ";
+                }
+                TraceManager.AddLog("rs232c data receive : [" + str + "]");
+
+                TPCANMsg buffer = new TPCANMsg( );
+                uint id_buffer = 0;
+                switch (datas[1]) {
+                    case 0x20:
+                        id_buffer = 0x120;
+                        break;
+                    case 0x21:
+                        id_buffer = 0x121;
+                        break;
+                    case 0x22:
+                        id_buffer = 0x122;
+                        break;
+                    case 0x23:
+                        id_buffer = 0x123;
+                        break;
+                    case 0x24:
+                        id_buffer = 0x124;
+                        break;
+                    case 0x25:
+                        id_buffer = 0x125;
+                        break;
+                    case 0x26:
+                        id_buffer = 0x126;
+                        break;
+                    case 0x27:
+                        id_buffer = 0x127;
+                        break;
+                    case 0x28:
+                        id_buffer = 0x128;
+                        break;
+                    case 0x29:
+                        id_buffer = 0x129;
+                        break;
+                    case 0x30:
+                        id_buffer = 0x130;
+                        break;
+                    case 0x40:
+                        id_buffer = 0x140;
+                        break;
+                    case 0x41:
+                        id_buffer = 0x141;
+                        break;
+                    case 0x42:
+                        id_buffer = 0x142;
+                        break;
+                    case 0x43:
+                        id_buffer = 0x143;
+                        break;
+                }
+                buffer.ID = id_buffer;
+                buffer.LEN = 8;
+                TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + " : =>\'" + id_buffer + "\']");
+
+                buffer.DATA = new byte[8];
+
+                Buffer.BlockCopy(datas, 4, buffer.DATA, 0, 8);
+
+                string sstr = string.Empty;
+                foreach (byte i in buffer.DATA) {
+                    sstr += i.ToString( ) + " ";
+                }
+                TraceManager.AddLog("rs232c Data Converted to [" + sstr + "]");
+
+                Connection.process_message(buffer);
+            } catch (Exception ex) {
+                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
-            TraceManager.AddLog("rs232c data receive : [" + str + "]");
-
-            TPCANMsg buffer = new TPCANMsg( );
-            uint id_buffer = 0;
-            switch (datas[1]) {
-                case 0x20:
-                    id_buffer = 0x120;
-                    break;
-                case 0x21:
-                    id_buffer = 0x121;
-                    break;
-                case 0x22:
-                    id_buffer = 0x122;
-                    break;
-                case 0x23:
-                    id_buffer = 0x123;
-                    break;
-                case 0x24:
-                    id_buffer = 0x124;
-                    break;
-                case 0x25:
-                    id_buffer = 0x125;
-                    break;
-                case 0x26:
-                    id_buffer = 0x126;
-                    break;
-                case 0x27:
-                    id_buffer = 0x127;
-                    break;
-                case 0x28:
-                    id_buffer = 0x128;
-                    break;
-                case 0x29:
-                    id_buffer = 0x129;
-                    break;
-                case 0x30:
-                    id_buffer = 0x130;
-                    break;
-                case 0x40:
-                    id_buffer = 0x140;
-                    break;
-                case 0x41:
-                    id_buffer = 0x141;
-                    break;
-                case 0x42:
-                    id_buffer = 0x142;
-                    break;
-                case 0x43:
-                    id_buffer = 0x143;
-                    break;
-            }
-            buffer.ID = id_buffer;
-            buffer.LEN = 8;
-            TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + " : =>\'" + id_buffer + "\']");
-
-            buffer.DATA = new byte[8];
-
-            Buffer.BlockCopy(datas, 4, buffer.DATA, 0, 8);
-
-            string sstr = string.Empty;
-            foreach (byte i in buffer.DATA) {
-                sstr += i.ToString( ) + " ";
-            }
-            TraceManager.AddLog("rs232c Data Converted to [" + sstr + "]");
-
-            Connection.process_message(buffer);
         }
 
         private void rsport_data_receive( ) {
@@ -2667,13 +2863,48 @@ namespace Pack_Monitor {
             }
         }
 
+        private void radioButton2_CheckedChanged(object sender, EventArgs e) {
+
+        }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e) {
+
+        }
+
+        private void button1_Click_1(object sender, EventArgs e) {
+            try {
+                StreamReader SR = new StreamReader("battery_type_list.sbt");
+
+                setting_bettery_type_cmb.Items.Clear( );
+                battery_type_list = new List<string>( );
+
+                string buffer;
+                while ((buffer = SR.ReadLine( )) != null) {
+                    setting_bettery_type_cmb.Items.Add(buffer);
+                    battery_type_list.Add(buffer);
+                }
+                SR.Close( );
+            } catch (Exception ex) {
+                MessageBox.Show("Failed to load the data file please try again", "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e) {
+            
+        }
+
+        private void data_save_command_CheckedChanged(object sender, EventArgs e) {
+
+        }
+
         private void tab_control_SelectedIndexChanged(object sender, EventArgs e) {
             if (tab_control.SelectedTab == login_tab)
                 textBox7.Focus( );
 
             if (tab_control.SelectedTab == log_tab)
                 timer.Enabled = false;
-            else
+            else if(is_communicate)
                 timer.Enabled = true;
         }
     }
