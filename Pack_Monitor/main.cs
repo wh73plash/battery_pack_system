@@ -2249,9 +2249,9 @@ namespace Pack_Monitor {
                         size_buffer = rsport.BytesToRead;
                     }
                 }
-                byte[ ] datas = new byte[1024];
-                rsport.Read(datas, 0, 1024);
-                for (int i = 0; i < 1024; i += 13) {
+                byte[ ] datas = new byte[4096];
+                rsport.Read(datas, 0, 4096);
+                for (int i = 0; i < 4096; i += 13) {
                     byte[ ] buffer_byte = new byte[13];
                     Buffer.BlockCopy(datas, i, buffer_byte, 0, 13);
                     log_data_process_datas(buffer_byte);
