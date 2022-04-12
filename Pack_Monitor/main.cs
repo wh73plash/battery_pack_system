@@ -667,16 +667,24 @@ namespace Pack_Monitor {
                 checkBox7.Checked = Convert.ToBoolean(tmp[cnt++]);
                 setting_bettery_type_cmb.Text = battery_type_list[Convert.ToInt32(tmp[cnt++])];
                 if (tmp[cnt++] == "0") {
-                    setting_current_direction_0.Checked = true;
+                    current_direction_0.BackColor = Color.Lime;
+                    current_direction_1.BackColor = Color.Silver;
                 } else {
-                    setting_current_direction_1.Checked = true;
+                    current_direction_0.BackColor = Color.Silver;
+                    current_direction_1.BackColor = Color.Lime;
                 }
                 if (tmp[cnt] == "50") {
-                    setting_current_sensor_50.Checked = true;
+                    current_sensor_type_50.BackColor = Color.Lime;
+                    current_sensor_type_100.BackColor = Color.Silver;
+                    current_sensor_type_200.BackColor = Color.Silver;
                 } else if (tmp[cnt] == "100") {
-                    setting_current_sensor_100.Checked = true;
+                    current_sensor_type_100.BackColor = Color.Lime;
+                    current_sensor_type_50.BackColor = Color.Silver;
+                    current_sensor_type_200.BackColor = Color.Silver;
                 } else {
-                    setting_current_sensor_200.Checked = true;
+                    current_sensor_type_200.BackColor = Color.Lime;
+                    current_sensor_type_100.BackColor = Color.Silver;
+                    current_sensor_type_50.BackColor = Color.Silver;
                 }
                 return;
             } catch (Exception ex) {
@@ -894,11 +902,11 @@ namespace Pack_Monitor {
         private void wrtie_setting_value_to_file(string path) {
             //경로 파일 생성 이후 setting에있는 모든 데이터 순차적으로 입력
             try {
-                string buff = setting_current_direction_0.Checked == true ? "0" : "1";
+                string buff = current_direction_0.BackColor == Color.Lime ? "0" : "1";
                 string buffer;
-                if (setting_current_sensor_50.Checked) {
+                if (current_sensor_type_50.BackColor == Color.Lime) {
                     buffer = "50";
-                } else if (setting_current_sensor_100.Checked) {
+                } else if (current_sensor_type_100.BackColor == Color.Lime) {
                     buffer = "100";
                 } else {
                     buffer = "200";
@@ -1341,7 +1349,7 @@ namespace Pack_Monitor {
 
                 newMessage.value_number = 14;
                 newMessage.worf = 17;
-                string buff = setting_current_direction_0.Checked == true ? "0" : "1";
+                string buff = current_direction_0.BackColor == Color.Lime ? "0" : "1";
                 newMessage.message = buff;
                 TraceManager.AddLog("WRITE #write message $value number:14 17 @message:" + newMessage.message);
                 Connection.write_message(newMessage);
@@ -1349,9 +1357,9 @@ namespace Pack_Monitor {
 
                 newMessage.value_number = 15;
                 newMessage.worf = 18;
-                if (setting_current_sensor_50.Checked) {
+                if (current_sensor_type_50.BackColor == Color.Lime) {
                     buff = "50";
-                } else if (setting_current_sensor_100.Checked) {
+                } else if (current_sensor_type_100.BackColor == Color.Lime) {
                     buff = "100";
                 } else {
                     buff = "200";
@@ -1603,7 +1611,7 @@ namespace Pack_Monitor {
 
                 newMessage.value_number = 14;
                 newMessage.worf = 17;
-                string buff = setting_current_direction_0.Checked == true ? "0" : "1";
+                string buff = current_direction_0.BackColor == Color.Lime ? "0" : "1";
                 newMessage.message = buff;
                 TraceManager.AddLog("WRITE #write message $value number:14 17 @message:" + newMessage.message);
                 send(newMessage);
@@ -1611,9 +1619,9 @@ namespace Pack_Monitor {
 
                 newMessage.value_number = 15;
                 newMessage.worf = 18;
-                if (setting_current_sensor_50.Checked) {
+                if (current_sensor_type_50.BackColor == Color.Lime) {
                     buff = "50";
-                } else if (setting_current_sensor_100.Checked) {
+                } else if (current_sensor_type_100.BackColor == Color.Lime) {
                     buff = "100";
                 } else {
                     buff = "200";
@@ -1796,17 +1804,25 @@ namespace Pack_Monitor {
                 cf_under_soc_release_time.Text = buffer[3];
 
                 if (Members.current_sensor_type == "50") {
-                    setting_current_sensor_50.Checked = true;
+                    current_sensor_type_50.BackColor = Color.Lime;
+                    current_sensor_type_100.BackColor = Color.Silver;
+                    current_sensor_type_200.BackColor = Color.Silver;
                 } else if (Members.current_sensor_type == "100") {
-                    setting_current_sensor_100.Checked = true;
+                    current_sensor_type_100.BackColor = Color.Lime;
+                    current_sensor_type_200.BackColor = Color.Silver;
+                    current_sensor_type_50.BackColor = Color.Silver;
                 } else {
-                    setting_current_sensor_200.Checked = true;
+                    current_sensor_type_200.BackColor = Color.Lime;
+                    current_sensor_type_50.BackColor = Color.Silver;
+                    current_sensor_type_100.BackColor = Color.Silver;
                 }
 
                 if (Members.current_direction == "0") {
-                    setting_current_direction_0.Checked = true;
+                    current_direction_0.BackColor = Color.Lime;
+                    current_direction_1.BackColor = Color.Silver;
                 } else {
-                    setting_current_direction_1.Checked = true;
+                    current_direction_0.BackColor = Color.Silver;
+                    current_direction_1.BackColor = Color.Lime;
                 }
                 int index_buffer = Convert.ToInt32(Members.battery_type);
                 setting_bettery_type_cmb.Text = battery_type_list[index_buffer];
@@ -2225,6 +2241,9 @@ namespace Pack_Monitor {
         private void bufferfunc( ) {
             try {
                 while (Members.logdata.is_while) {
+                    if (tab_control.SelectedTab != log_tab) {
+                        return;
+                    }
                     if (Members.logdata.nextline) {
                         new Thread(( ) => set_log_Data( )).Start( );
                         Members.logdata.nextline = false;
@@ -2248,15 +2267,21 @@ namespace Pack_Monitor {
                     } else {
                         size_buffer = rsport.BytesToRead;
                     }
+                    TraceManager.AddLog("SUCCESS #Exit the first checking loop  $jump to data process channel");
                 }
-                byte[ ] datas = new byte[4096];
-                rsport.Read(datas, 0, 4096);
-                for (int i = 0; i < 4096; i += 13) {
+                byte[ ] datas = new byte[rsport.BytesToRead];
+                int buffer_count = rsport.Read(datas, 0, rsport.BytesToRead);
+                int cnt = 0;
+                new Thread(( ) => bufferfunc( )).Start( );
+                for (int i = 0; i < buffer_count; i += 13) {
                     byte[ ] buffer_byte = new byte[13];
                     Buffer.BlockCopy(datas, i, buffer_byte, 0, 13);
                     log_data_process_datas(buffer_byte);
-                    new Thread(( ) => bufferfunc( )).Start( );
                     Thread.Sleep(100);
+                    if (tab_control.SelectedTab != log_tab) {
+                        rsport.DiscardInBuffer( );
+                        return;
+                    }
                 }
                 rsport.DiscardInBuffer( );
             } catch (Exception ex) {
@@ -2845,7 +2870,7 @@ namespace Pack_Monitor {
         }
 
         private void log_data_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e) {
-            log_data.FirstDisplayedScrollingRowIndex = log_data.Rows.Count - 1;
+            //log_data.FirstDisplayedScrollingRowIndex = log_data.Rows.Count - 1;
         }
 
         private int current__ = -10;
@@ -2896,6 +2921,34 @@ namespace Pack_Monitor {
 
         private void data_save_command_CheckedChanged(object sender, EventArgs e) {
 
+        }
+
+        private void current_direction_0_Click(object sender, EventArgs e) {
+            current_direction_0.BackColor = Color.Lime;
+            current_direction_1.BackColor = Color.Silver;
+        }
+
+        private void current_direction_1_Click(object sender, EventArgs e) {
+            current_direction_1.BackColor = Color.Lime;
+            current_direction_0.BackColor = Color.Silver;
+        }
+
+        private void current_sensor_type_50_Click(object sender, EventArgs e) {
+            current_sensor_type_50.BackColor = Color.Lime;
+            current_sensor_type_100.BackColor = Color.Silver;
+            current_sensor_type_200.BackColor = Color.Silver;
+        }
+
+        private void current_sensor_type_100_Click(object sender, EventArgs e) {
+            current_sensor_type_50.BackColor = Color.Silver;
+            current_sensor_type_100.BackColor = Color.Lime;
+            current_sensor_type_200.BackColor = Color.Silver;
+        }
+
+        private void current_sensor_type_200_Click(object sender, EventArgs e) {
+            current_sensor_type_50.BackColor = Color.Silver;
+            current_sensor_type_100.BackColor = Color.Silver;
+            current_sensor_type_200.BackColor = Color.Lime;
         }
 
         private void tab_control_SelectedIndexChanged(object sender, EventArgs e) {
