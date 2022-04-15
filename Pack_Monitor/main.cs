@@ -1130,6 +1130,15 @@ namespace Pack_Monitor {
                 checkBox9.Checked = false;
                 checkBox8.Checked = false;
                 checkBox7.Checked = false;
+
+                current_direction_0.BackColor = Color.Silver;
+                current_direction_1.BackColor = Color.Silver;
+
+                current_sensor_type_50.BackColor = Color.Silver;
+                current_sensor_type_100.BackColor = Color.Silver;
+                current_sensor_type_200.BackColor = Color.Silver;
+
+                setting_bettery_type_cmb.SelectedIndex = -1;
                 TraceManager.AddLog("SUCCESS #Data Clear  $setting data set clear");
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -2260,28 +2269,22 @@ namespace Pack_Monitor {
             //rs232c
             try {
                 int size_buffer = rsport.BytesToRead;
+                Thread.Sleep(1000);
                 while (true) {
-                    Thread.Sleep(100);
+                    Thread.Sleep(250);
                     if (size_buffer == rsport.BytesToRead) {
                         break;
                     } else {
                         size_buffer = rsport.BytesToRead;
                     }
-                    TraceManager.AddLog("SUCCESS #Exit the first checking loop  $jump to data process channel");
                 }
+                TraceManager.AddLog("SUCCESS #Exit the first checking loop  $jump to data process channel read byte size : " + rsport.BytesToRead);
                 byte[ ] datas = new byte[rsport.BytesToRead];
                 int buffer_count = rsport.Read(datas, 0, rsport.BytesToRead);
-                int cnt = 0;
-                new Thread(( ) => bufferfunc( )).Start( );
                 for (int i = 0; i < buffer_count; i += 13) {
                     byte[ ] buffer_byte = new byte[13];
                     Buffer.BlockCopy(datas, i, buffer_byte, 0, 13);
                     log_data_process_datas(buffer_byte);
-                    Thread.Sleep(100);
-                    if (tab_control.SelectedTab != log_tab) {
-                        rsport.DiscardInBuffer( );
-                        return;
-                    }
                 }
                 rsport.DiscardInBuffer( );
             } catch (Exception ex) {
@@ -2316,6 +2319,7 @@ namespace Pack_Monitor {
                     data[5] = 0x1D;
                     data[6] = 0xFF;
                     data[12] = 0x03;
+                    rsport.DiscardInBuffer( );
                     rsport.Write(data, 0, 13);
 
                     new Thread(( ) => check_logs( )).Start( );
@@ -2341,6 +2345,7 @@ namespace Pack_Monitor {
 
         public void set_log_Data( ) {
             try {
+                Members.logdata.nextline = false;
                 log_data.Rows.Add(Members.logdata.logdatanumber, Members.logdata.logdatacount, Members.logdata.packvoltage, Members.logdata.packcurrent, Members.logdata.packsoc
                 , Members.logdata.maxcellvoltage, Members.logdata.mincellvoltage, Members.logdata.averagevoltage, Members.logdata.differencecellvoltage
                 , Members.logdata.maxcelltemperature, Members.logdata.mincelltemperature, Members.logdata.averagetemperature, Members.logdata.differencetemperature
@@ -2672,6 +2677,7 @@ namespace Pack_Monitor {
             return;
         }
 
+        private static int log_Data_count = 0;
         private void log_data_process_datas(byte[ ] datas) {
             try {
                 string str = "";
@@ -2744,6 +2750,12 @@ namespace Pack_Monitor {
                 TraceManager.AddLog("rs232c Data Converted to [" + sstr + "]");
 
                 Connection.process_message(buffer);
+                if (Members.logdata.nextline && ++log_Data_count >= 4) {
+                    log_Data_count = 0;
+                    Members.logdata.nextline = false;
+                    new Thread(( ) => set_log_Data( )).Start( );
+                    TraceManager.AddLog("rs232c : log data added in new line");
+                }
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
