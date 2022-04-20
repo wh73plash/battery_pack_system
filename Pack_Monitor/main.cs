@@ -2271,7 +2271,7 @@ namespace Pack_Monitor {
                 int size_buffer = rsport.BytesToRead;
                 Thread.Sleep(1000);
                 while (true) {
-                    Thread.Sleep(250);
+                    Thread.Sleep(500);
                     if (size_buffer == rsport.BytesToRead) {
                         break;
                     } else {
@@ -2677,6 +2677,58 @@ namespace Pack_Monitor {
             return;
         }
 
+        private static uint id_return(byte etx) {
+            uint id_buffer = 0;
+            switch (etx) {
+                case 0x20:
+                    id_buffer = 0x120;
+                    break;
+                case 0x21:
+                    id_buffer = 0x121;
+                    break;
+                case 0x22:
+                    id_buffer = 0x122;
+                    break;
+                case 0x23:
+                    id_buffer = 0x123;
+                    break;
+                case 0x24:
+                    id_buffer = 0x124;
+                    break;
+                case 0x25:
+                    id_buffer = 0x125;
+                    break;
+                case 0x26:
+                    id_buffer = 0x126;
+                    break;
+                case 0x27:
+                    id_buffer = 0x127;
+                    break;
+                case 0x28:
+                    id_buffer = 0x128;
+                    break;
+                case 0x29:
+                    id_buffer = 0x129;
+                    break;
+                case 0x30:
+                    id_buffer = 0x130;
+                    break;
+                case 0x40:
+                    id_buffer = 0x140;
+                    break;
+                case 0x41:
+                    id_buffer = 0x141;
+                    break;
+                case 0x42:
+                    id_buffer = 0x142;
+                    break;
+                case 0x43:
+                    id_buffer = 0x143;
+                    break;
+            }
+            return id_buffer;
+        }
+
         private static int log_Data_count = 0;
         private void log_data_process_datas(byte[ ] datas) {
             try {
@@ -2687,57 +2739,10 @@ namespace Pack_Monitor {
                 TraceManager.AddLog("rs232c data receive : [" + str + "]");
 
                 TPCANMsg buffer = new TPCANMsg( );
-                uint id_buffer = 0;
-                switch (datas[1]) {
-                    case 0x20:
-                        id_buffer = 0x120;
-                        break;
-                    case 0x21:
-                        id_buffer = 0x121;
-                        break;
-                    case 0x22:
-                        id_buffer = 0x122;
-                        break;
-                    case 0x23:
-                        id_buffer = 0x123;
-                        break;
-                    case 0x24:
-                        id_buffer = 0x124;
-                        break;
-                    case 0x25:
-                        id_buffer = 0x125;
-                        break;
-                    case 0x26:
-                        id_buffer = 0x126;
-                        break;
-                    case 0x27:
-                        id_buffer = 0x127;
-                        break;
-                    case 0x28:
-                        id_buffer = 0x128;
-                        break;
-                    case 0x29:
-                        id_buffer = 0x129;
-                        break;
-                    case 0x30:
-                        id_buffer = 0x130;
-                        break;
-                    case 0x40:
-                        id_buffer = 0x140;
-                        break;
-                    case 0x41:
-                        id_buffer = 0x141;
-                        break;
-                    case 0x42:
-                        id_buffer = 0x142;
-                        break;
-                    case 0x43:
-                        id_buffer = 0x143;
-                        break;
-                }
-                buffer.ID = id_buffer;
+                
+                buffer.ID = id_return(datas[1]);
                 buffer.LEN = 8;
-                TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + " : =>\'" + id_buffer + "\']");
+                TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + "]");
 
                 buffer.DATA = new byte[8];
 
@@ -2750,10 +2755,10 @@ namespace Pack_Monitor {
                 TraceManager.AddLog("rs232c Data Converted to [" + sstr + "]");
 
                 Connection.process_message(buffer);
-                if (Members.logdata.nextline && ++log_Data_count >= 4) {
+                if (Members.logdata.nextline) {
                     log_Data_count = 0;
                     Members.logdata.nextline = false;
-                    new Thread(( ) => set_log_Data( )).Start( );
+                    set_log_Data( );
                     TraceManager.AddLog("rs232c : log data added in new line");
                 }
             } catch (Exception ex) {
@@ -2770,57 +2775,10 @@ namespace Pack_Monitor {
                 TraceManager.AddLog("rs232c data receive : [" + str + "]");
 
                 TPCANMsg buffer = new TPCANMsg( );
-                uint id_buffer = 0;
-                switch (datas[1]) {
-                    case 0x20:
-                        id_buffer = 0x120;
-                        break;
-                    case 0x21:
-                        id_buffer = 0x121;
-                        break;
-                    case 0x22:
-                        id_buffer = 0x122;
-                        break;
-                    case 0x23:
-                        id_buffer = 0x123;
-                        break;
-                    case 0x24:
-                        id_buffer = 0x124;
-                        break;
-                    case 0x25:
-                        id_buffer = 0x125;
-                        break;
-                    case 0x26:
-                        id_buffer = 0x126;
-                        break;
-                    case 0x27:
-                        id_buffer = 0x127;
-                        break;
-                    case 0x28:
-                        id_buffer = 0x128;
-                        break;
-                    case 0x29:
-                        id_buffer = 0x129;
-                        break;
-                    case 0x30:
-                        id_buffer = 0x130;
-                        break;
-                    case 0x40:
-                        id_buffer = 0x140;
-                        break;
-                    case 0x41:
-                        id_buffer = 0x141;
-                        break;
-                    case 0x42:
-                        id_buffer = 0x142;
-                        break;
-                    case 0x43:
-                        id_buffer = 0x143;
-                        break;
-                }
-                buffer.ID = id_buffer;
+                
+                buffer.ID = id_return(datas[1]);
                 buffer.LEN = 8;
-                TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + " : =>\'" + id_buffer + "\']");
+                TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + "]");
 
                 buffer.DATA = new byte[8];
 
