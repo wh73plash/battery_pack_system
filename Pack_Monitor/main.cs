@@ -58,6 +58,8 @@ namespace Pack_Monitor {
                     }
                     sw.Close( );
                 }
+
+                log_data.Controls.Add(vScrollBar1);
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR #Error(1)  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -2841,6 +2843,8 @@ namespace Pack_Monitor {
 
         private void log_data_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e) {
             //log_data.FirstDisplayedScrollingRowIndex = log_data.Rows.Count - 1;
+            vScrollBar1.Maximum = log_data.RowCount;
+            vScrollBar1.Value = log_data.RowCount;
         }
 
         private int current__ = -10;
@@ -2919,6 +2923,12 @@ namespace Pack_Monitor {
             current_sensor_type_50.BackColor = Color.Silver;
             current_sensor_type_100.BackColor = Color.Silver;
             current_sensor_type_200.BackColor = Color.Lime;
+        }
+
+        private void vScrollBar1_Scroll(object sender, ScrollEventArgs e) {
+            if (e.NewValue > -1 && e.NewValue < log_data.Rows.Count) {
+                log_data.FirstDisplayedScrollingRowIndex = e.NewValue;
+            }
         }
 
         private void tab_control_SelectedIndexChanged(object sender, EventArgs e) {
