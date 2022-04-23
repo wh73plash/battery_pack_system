@@ -60,6 +60,10 @@ namespace Pack_Monitor {
                 }
 
                 log_data.Controls.Add(vScrollBar1);
+
+                for (int i = 0; i < 50; ++i) {
+                    log_data.Rows.Add(i.ToString( ));
+                }
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR #Error(1)  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -2931,14 +2935,21 @@ namespace Pack_Monitor {
             }
         }
 
+        private void log_data_MouseEnter(object sender, EventArgs e) {
+            log_data.Focus( );
+        }
+
         private void tab_control_SelectedIndexChanged(object sender, EventArgs e) {
             if (tab_control.SelectedTab == login_tab)
                 textBox7.Focus( );
 
-            if (tab_control.SelectedTab == log_tab)
+            if (tab_control.SelectedTab == log_tab) {
                 timer.Enabled = false;
-            else if(is_communicate)
+                if (connect_state.Text == "Connected - RS232C")
+                    rsport.DiscardInBuffer( );
+            } else if (is_communicate) {
                 timer.Enabled = true;
+            }
         }
     }
 }
