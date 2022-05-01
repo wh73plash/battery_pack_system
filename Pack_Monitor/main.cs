@@ -1885,6 +1885,12 @@ namespace Pack_Monitor {
                     buffer.IsBackground = true;
                     buffer.Start( );
                 } else if (connect_state.Text == "Connected - RS232C") {
+                    bool timer_bool = false;
+                    if (timer.Enabled) {
+                        timer.Enabled = false;
+                        timer_bool = true;
+                        rsport.DiscardInBuffer( );
+                    }
                     byte[ ] data = new byte[13];
                     data[0] = 0x02;
                     data[1] = 0x30;
@@ -1899,7 +1905,7 @@ namespace Pack_Monitor {
                     Thread.Sleep(1150);
                     try {
                         int size = rsport.BytesToRead;
-                        TraceManager.AddLog("Hello world - " + size.ToString( ));
+                        TraceManager.AddLog("rsport bytes to read buffer size - " + size.ToString( ));
                         byte[ ] datas = new byte[size];
                         rsport.Read(datas, 0, size);
                         for (int i = 0; i < size; i += 13) {
@@ -1908,6 +1914,9 @@ namespace Pack_Monitor {
                             process_datas(buffer_byte);
                         }
                         rsport.DiscardInBuffer( );
+                        if (timer_bool) {
+                            timer.Enabled = true;
+                        }
                     } catch (Exception ex) {
                         TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
                     }
@@ -2293,9 +2302,11 @@ namespace Pack_Monitor {
                     log_data_process_datas(buffer_byte);
                 }
                 rsport.DiscardInBuffer( );
+                return;
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
+            return;
         }
 
         private void log_data_read_btn_Click(object sender, EventArgs e) {
@@ -2937,6 +2948,10 @@ namespace Pack_Monitor {
 
         private void log_data_MouseEnter(object sender, EventArgs e) {
             log_data.Focus( );
+        }
+
+        private void vScrollBar1_MouseEnter(object sender, EventArgs e) {
+
         }
 
         private void tab_control_SelectedIndexChanged(object sender, EventArgs e) {
