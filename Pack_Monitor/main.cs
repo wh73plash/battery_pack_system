@@ -19,7 +19,7 @@ using Peak.Can.Basic;
 using Pack_Monitor.CAN;
 
 namespace Pack_Monitor {
-    
+
 
     public partial class main : Form {
         bool is_communicate = false, is_connected = false;
@@ -59,11 +59,9 @@ namespace Pack_Monitor {
                     sw.Close( );
                 }
 
-                log_data.Controls.Add(vScrollBar1);
+                logdata_scrollbar.Visible = false;
 
-                for (int i = 0; i < 50; ++i) {
-                    log_data.Rows.Add(i.ToString( ));
-                }
+                log_data.Controls.Add(logdata_scrollbar);
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR #Error(1)  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -149,7 +147,7 @@ namespace Pack_Monitor {
                 rs232_connect.Enabled = true;
                 combobox_port.Enabled = true;
 
-                
+
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -945,7 +943,7 @@ namespace Pack_Monitor {
                 setting_battery_capacity.Text + ',' + setting_cell_life_cycle.Text + ',' + setting_number_of_cell.Text + ',' + setting_cell_balancing_start_v.Text + ',' +
                 p_overvoltage_ch.Checked + ',' + p_undervoltage_ch.Checked + ',' + p_chargeovercurrent_ch.Checked + ',' + p_dischargeovercurrent_ch.Checked + ',' +
                 p_oversoc_ch.Checked + ',' + p_undersoc_ch.Checked + ',' + p_undersoh_ch.Checked + ',' + checkBox12.Checked + ',' + checkBox11.Checked + ',' +
-                checkBox10.Checked + ',' + checkBox9.Checked + ',' + checkBox8.Checked + ',' + checkBox7.Checked + ',' + setting_bettery_type_cmb.SelectedIndex.ToString()
+                checkBox10.Checked + ',' + checkBox9.Checked + ',' + checkBox8.Checked + ',' + checkBox7.Checked + ',' + setting_bettery_type_cmb.SelectedIndex.ToString( )
                 + ',' + buff + ',' + buffer + ',';
                 StreamWriter fp;
                 fp = File.AppendText(path);
@@ -1871,6 +1869,8 @@ namespace Pack_Monitor {
             return;
         }
 
+        bool timer_bool = false;
+
         private async void read_from_bms_btn_Click(object sender, EventArgs e) {
             try {
                 if (connect_state.Text == "Connected - CAN") {
@@ -1885,12 +1885,6 @@ namespace Pack_Monitor {
                     buffer.IsBackground = true;
                     buffer.Start( );
                 } else if (connect_state.Text == "Connected - RS232C") {
-                    bool timer_bool = false;
-                    if (timer.Enabled) {
-                        timer.Enabled = false;
-                        timer_bool = true;
-                        rsport.DiscardInBuffer( );
-                    }
                     byte[ ] data = new byte[13];
                     data[0] = 0x02;
                     data[1] = 0x30;
@@ -1914,14 +1908,15 @@ namespace Pack_Monitor {
                             process_datas(buffer_byte);
                         }
                         rsport.DiscardInBuffer( );
-                        if (timer_bool) {
-                            timer.Enabled = true;
-                        }
                     } catch (Exception ex) {
                         TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
                     }
+                    if (timer_bool) {
+                        timer.Enabled = true;
+                    }
 
                     new Thread(( ) => setting_value_buffer( )).Start( );
+                    return;
                 }
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -2273,6 +2268,7 @@ namespace Pack_Monitor {
                         Members.logdata.nextline = false;
                     }
                 }
+                log_data.Focus( );
                 return;
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -2302,6 +2298,7 @@ namespace Pack_Monitor {
                     log_data_process_datas(buffer_byte);
                 }
                 rsport.DiscardInBuffer( );
+                log_data.Focus( );
                 return;
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -2756,7 +2753,7 @@ namespace Pack_Monitor {
                 TraceManager.AddLog("rs232c data receive : [" + str + "]");
 
                 TPCANMsg buffer = new TPCANMsg( );
-                
+
                 buffer.ID = id_return(datas[1]);
                 buffer.LEN = 8;
                 TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + "]");
@@ -2792,7 +2789,7 @@ namespace Pack_Monitor {
                 TraceManager.AddLog("rs232c data receive : [" + str + "]");
 
                 TPCANMsg buffer = new TPCANMsg( );
-                
+
                 buffer.ID = id_return(datas[1]);
                 buffer.LEN = 8;
                 TraceManager.AddLog("rs232c ID : [" + buffer.ID.ToString( ) + "]");
@@ -2857,9 +2854,13 @@ namespace Pack_Monitor {
         }
 
         private void log_data_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e) {
-            //log_data.FirstDisplayedScrollingRowIndex = log_data.Rows.Count - 1;
-            vScrollBar1.Maximum = log_data.RowCount;
-            vScrollBar1.Value = log_data.RowCount;
+            if (log_data.Rows.Count > 0) {
+                logdata_scrollbar.Visible = true;
+            } else {
+                logdata_scrollbar.Visible = false;
+            }
+            logdata_scrollbar.Maximum = log_data.RowCount;
+            logdata_scrollbar.Value = log_data.RowCount;
         }
 
         private int current__ = -10;
@@ -2905,7 +2906,7 @@ namespace Pack_Monitor {
         }
 
         private void button2_Click(object sender, EventArgs e) {
-            
+
         }
 
         private void data_save_command_CheckedChanged(object sender, EventArgs e) {
@@ -2954,6 +2955,40 @@ namespace Pack_Monitor {
 
         }
 
+        private void log_data_MouseHover(object sender, EventArgs e) {
+
+        }
+
+        private void log_data_RowsRemoved(object sender, DataGridViewRowsRemovedEventArgs e) {
+            if (log_data.Rows.Count <= 0) {
+                logdata_scrollbar.Visible = false;
+            } else {
+                logdata_scrollbar.Visible = true;
+            }
+        }
+
+        public void Delay(int ms) {
+            DateTime dateTimeNow = DateTime.Now;
+            TimeSpan duration = new TimeSpan(0, 0, 0, 0, ms);
+            DateTime dateTimeAdd = dateTimeNow.Add(duration);
+            while (dateTimeAdd >= dateTimeNow) {
+                System.Windows.Forms.Application.DoEvents( );
+                dateTimeNow = DateTime.Now;
+            }
+            return;
+        }
+
+        private void button2_Click_1(object sender, EventArgs e) {
+            try {
+                for (int i = 0; i < 50; ++i) {
+                    log_data.Rows.Add(i.ToString( ));
+                    Delay(500);
+                }
+            } catch (Exception ex) {
+                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+            }
+        }
+
         private void tab_control_SelectedIndexChanged(object sender, EventArgs e) {
             if (tab_control.SelectedTab == login_tab)
                 textBox7.Focus( );
@@ -2964,6 +2999,36 @@ namespace Pack_Monitor {
                     rsport.DiscardInBuffer( );
             } else if (is_communicate) {
                 timer.Enabled = true;
+            }
+
+            if (tab_control.SelectedTab == setting_tab && connect_state.Text == "Connected - RS232C") {
+                try {
+                    if (timer.Enabled) {
+                        if (timer.Enabled) {
+                            timer.Enabled = false;
+                            timer_bool = true;
+                            Thread.Sleep(1050);
+                            rsport.DiscardInBuffer( );
+                            rsport.Close( );
+                            rsport.Open( );  //시리얼포트 열기
+                            if (rsport.IsOpen) {
+                                is_connected = true;
+                                connect_state.Text = "Connected - RS232C";
+                                can_connect.Enabled = false;
+                                rs232_connect.Enabled = false;
+                                combobox_port.Enabled = false;
+                                combobox_port.Enabled = false;
+                                initialize_btn.BackColor = Color.Lime;
+                                connect_state.ForeColor = Color.Black;
+                            } else {
+                                MessageBox.Show("Failed to initialize RS232C communication");
+                                throw new Exception("Failed to initialize RS232C communication");
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+                }
             }
         }
     }

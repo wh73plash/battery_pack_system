@@ -354,6 +354,7 @@ namespace Pack_Monitor.CAN {
                         MessageBox.Show("Log Data Send Complete Response", "Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     Members.logdata.is_while = false;
+
                     break;
                 case 11:
                     bb = new byte[4];
