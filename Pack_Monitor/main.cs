@@ -1389,9 +1389,8 @@ namespace Pack_Monitor {
                     TraceManager.AddLog("WRITE #write message $value number:34 0x2A @message:" + newMessage.message);
                     Connection.write_message(newMessage);
                     Thread.Sleep(10);
-
-                    Connection.read_message( );
                 }
+                Connection.read_message( );
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -1651,8 +1650,17 @@ namespace Pack_Monitor {
                     TraceManager.AddLog("WRITE #write message $value number:34 0x2A @message:" + newMessage.message);
                     send(newMessage);
                     Thread.Sleep(10);
-
                 }
+
+                int size = rsport.BytesToRead;
+                byte[ ] datas = new byte[size];
+                rsport.Read(datas, 0, size);
+                for (int i = 0; i < size; i += 13) {
+                    byte[ ] buffer_byte = new byte[13];
+                    Buffer.BlockCopy(datas, i, buffer_byte, 0, 13);
+                    process_datas(buffer_byte);
+                }
+                rsport.DiscardInBuffer( );
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -1894,9 +1902,11 @@ namespace Pack_Monitor {
                     data[5] = 0x1A;
                     data[6] = 0xAA;
                     data[12] = 0x03;
+                    rsport.DiscardInBuffer( );
                     rsport.Write(data, 0, 13);
 
-                    Thread.Sleep(1150);
+                    Thread.Sleep(1500);
+
                     try {
                         int size = rsport.BytesToRead;
                         TraceManager.AddLog("rsport bytes to read buffer size - " + size.ToString( ));
@@ -1910,9 +1920,6 @@ namespace Pack_Monitor {
                         rsport.DiscardInBuffer( );
                     } catch (Exception ex) {
                         TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
-                    }
-                    if (timer_bool) {
-                        timer.Enabled = true;
                     }
 
                     new Thread(( ) => setting_value_buffer( )).Start( );
@@ -2193,7 +2200,8 @@ namespace Pack_Monitor {
                         data_receive.Interval = 1;
                         data_receive.Enabled = true;
                     }
-                    timer.Enabled = timer_display.Enabled = true;
+                    timer.Enabled = timer_display.Enabled = timer_bool = true;
+                    
                 } else {
                     MessageBox.Show(new Form { TopMost = true }, "The Communication is not Initialized", "Warning !", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
@@ -2212,6 +2220,7 @@ namespace Pack_Monitor {
                 rsport.DiscardInBuffer( );
                 com_cnt.Text = "0";
                 com_cnt_ = 0;
+                timer_bool = false;
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
@@ -3001,30 +3010,18 @@ namespace Pack_Monitor {
                 timer.Enabled = true;
             }
 
+            if (tab_control.SelectedTab != setting_tab && connect_state.Text == "Connected - RS232C" && timer_bool == true) {
+                timer.Enabled = true;
+            }
+
             if (tab_control.SelectedTab == setting_tab && connect_state.Text == "Connected - RS232C") {
                 try {
                     if (timer.Enabled) {
-                        if (timer.Enabled) {
-                            timer.Enabled = false;
-                            timer_bool = true;
-                            Thread.Sleep(1050);
-                            rsport.DiscardInBuffer( );
-                            rsport.Close( );
-                            rsport.Open( );  //시리얼포트 열기
-                            if (rsport.IsOpen) {
-                                is_connected = true;
-                                connect_state.Text = "Connected - RS232C";
-                                can_connect.Enabled = false;
-                                rs232_connect.Enabled = false;
-                                combobox_port.Enabled = false;
-                                combobox_port.Enabled = false;
-                                initialize_btn.BackColor = Color.Lime;
-                                connect_state.ForeColor = Color.Black;
-                            } else {
-                                MessageBox.Show("Failed to initialize RS232C communication");
-                                throw new Exception("Failed to initialize RS232C communication");
-                            }
-                        }
+                        timer.Enabled = false;
+                        timer_bool = true;
+                        Thread.Sleep(1050);
+                        rsport.DiscardInBuffer( );
+                        is_first = true;
                     }
                 } catch (Exception ex) {
                     TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
