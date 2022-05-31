@@ -1681,6 +1681,8 @@ namespace Pack_Monitor {
 
         private async void display_setting_value( ) {
             try {
+                TraceManager.AddLog("display value setting function start ...");
+
                 setting_battery_capacity.Text = Members.batterycapacityvaluesetting;
                 setting_cell_balancing_start_v.Text = Members.cellbalancingstartvsetting;
                 setting_cell_life_cycle.Text = Members.celllifecyclesetting;
@@ -1862,6 +1864,8 @@ namespace Pack_Monitor {
                 checkBox9.Checked = bin[3] == '1';
                 checkBox8.Checked = bin[2] == '1';
                 checkBox7.Checked = bin[1] == '1';
+
+                TraceManager.AddLog("----- display value setting function placed -----");
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
