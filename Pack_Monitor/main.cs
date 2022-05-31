@@ -1883,6 +1883,25 @@ namespace Pack_Monitor {
 
         bool timer_bool = false;
 
+        private void rs232c_setting_read_from_bms( ) {
+            try {
+                int size = rsport.BytesToRead;
+                TraceManager.AddLog("rsport bytes to read buffer size - " + size.ToString( ));
+                byte[ ] datas = new byte[size];
+                rsport.Read(datas, 0, size);
+                for (int i = 0; i < size; i += 13) {
+                    byte[ ] buffer_byte = new byte[13];
+                    Buffer.BlockCopy(datas, i, buffer_byte, 0, 13);
+                    process_datas(buffer_byte);
+                }
+                rsport.DiscardInBuffer( );
+                new Thread(( ) => setting_value_buffer( )).Start( );
+            } catch (Exception ex) {
+                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+            }
+            return;
+        }
+
         private async void read_from_bms_btn_Click(object sender, EventArgs e) {
             try {
                 if (connect_state.Text == "Connected - CAN") {
@@ -1909,25 +1928,14 @@ namespace Pack_Monitor {
                     rsport.DiscardInBuffer( );
                     rsport.Write(data, 0, 13);
 
-                    Thread.Sleep(1500);
-
-                    try {
-                        int size = rsport.BytesToRead;
-                        TraceManager.AddLog("rsport bytes to read buffer size - " + size.ToString( ));
-                        byte[ ] datas = new byte[size];
-                        rsport.Read(datas, 0, size);
-                        for (int i = 0; i < size; i += 13) {
-                            byte[ ] buffer_byte = new byte[13];
-                            Buffer.BlockCopy(datas, i, buffer_byte, 0, 13);
-                            process_datas(buffer_byte);
+                    do {
+                        if (rsport.BytesToRead == 442) {
+                            new Thread(( ) => rs232c_setting_read_from_bms( )).Start( );
+                        } else {
+                            Thread.Sleep(100);
+                            continue;
                         }
-                        rsport.DiscardInBuffer( );
-                    } catch (Exception ex) {
-                        TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
-                    }
-
-                    new Thread(( ) => setting_value_buffer( )).Start( );
-                    return;
+                    } while (true);
                 }
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -2823,10 +2831,6 @@ namespace Pack_Monitor {
             }
         }
 
-        private void rsport_data_receive( ) {
-
-        }
-
         private void rsport_DataReceived(object sender, SerialDataReceivedEventArgs e) {
 
         }
@@ -2878,7 +2882,11 @@ namespace Pack_Monitor {
 
         private int current__ = -10;
         private void setting_bettery_type_cmb_SelectedIndexChanged(object sender, EventArgs e) {
-            current__ = setting_bettery_type_cmb.SelectedIndex;
+            try {
+                current__ = setting_bettery_type_cmb.SelectedIndex;
+            } catch (Exception ex) {
+                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+            }
         }
 
         private void setting_bettery_type_cmb_TextChanged(object sender, EventArgs e) {
@@ -2889,14 +2897,6 @@ namespace Pack_Monitor {
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
-        }
-
-        private void radioButton2_CheckedChanged(object sender, EventArgs e) {
-
-        }
-
-        private void radioButton1_CheckedChanged(object sender, EventArgs e) {
-
         }
 
         private void button1_Click_1(object sender, EventArgs e) {
