@@ -124,6 +124,7 @@ namespace Pack_Monitor {
                     MessageBox.Show("No Connection method has been selected", "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             } catch (Exception ex) {
+                MessageBox.Show(ex.StackTrace, ex.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
                 is_connected = false;
             }
@@ -135,7 +136,11 @@ namespace Pack_Monitor {
                     Connection.disconnect( );
                 } else if (connect_state.Text == "Connected - RS232C") {
                     rsport.Close( );
+                } else {
+                    MessageBox.Show("It has already been released", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
+
                 combobox_port.Enabled = true;
                 connect_state.ForeColor = Color.Gray;
                 initialize_btn.BackColor = Color.White;
@@ -146,9 +151,10 @@ namespace Pack_Monitor {
                 can_connect.Enabled = true;
                 rs232_connect.Enabled = true;
                 combobox_port.Enabled = true;
-
+                is_first = true;
 
             } catch (Exception ex) {
+                MessageBox.Show(ex.StackTrace, ex.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
         }
@@ -3000,6 +3006,10 @@ namespace Pack_Monitor {
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
+        }
+
+        private void connection_tab_Click(object sender, EventArgs e) {
+
         }
 
         private void tab_control_SelectedIndexChanged(object sender, EventArgs e) {
