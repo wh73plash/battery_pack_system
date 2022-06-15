@@ -342,6 +342,13 @@ namespace Pack_Monitor {
 
         bool is_first = true;
 
+        private void flash( ) {
+            Com_start_btn.BackColor = Color.White;
+            Thread.Sleep(300);
+            Com_start_btn.BackColor = Color.Lime;
+            return;
+        }
+
         private int com_cnt_ = 0;
         private void timer_Tick(object sender, EventArgs e) {
             try {
@@ -373,28 +380,22 @@ namespace Pack_Monitor {
                         is_first = false;
                         TraceManager.AddLog("rs232c data receive command sent");
                     }
-                    if (Connection.connection_check) {
-                        Com_start_btn.BackColor = Color.White;
-                        com_cnt.Text = (++com_cnt_).ToString( );
-                    } else {
-                        Com_start_btn.BackColor = Color.Lime;
-                        com_cnt.Text = (++com_cnt_).ToString( );
-                    }
 
-                    if (Connection.connection_check == data_receive_test)
+                    if (Connection.connection_check == data_receive_test) {
                         ++error_count;
-                    else
+                    } else {
                         error_count = 0;
+                        com_cnt.Text = (++com_cnt_).ToString( );
+                        new Thread(( ) => flash( )).Start( );
+                    }
 
                     data_receive_test = Connection.connection_check;
 
                     if (error_count >= 3) {
                         error_count = 0;
                         timer_display.Enabled = timer.Enabled = false;
-                        Com_start_btn.BackColor = Color.White;
-                        is_communicate = false;
                         Connection.reset( );
-                        MessageBox.Show("Interrupting the communication due to a communication problem", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        //MessageBox.Show("Interrupting the communication due to a communication problem", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         TraceManager.AddLog("ERROR   #communicate  $Communicate problem detected @interrupted the communication");
 
                         //Release
@@ -402,6 +403,7 @@ namespace Pack_Monitor {
                             if (connect_state.Text == "Connected - CAN") {
                                 Connection.disconnect( );
                             } else if (connect_state.Text == "Connected - RS232C") {
+                                rsport.DiscardInBuffer( );
                                 rsport.Close( );
                             }
                             combobox_port.Enabled = true;
@@ -444,6 +446,7 @@ namespace Pack_Monitor {
                                     combobox_port.Enabled = false;  //COM포트설정 콤보박스 비활성화
                                     initialize_btn.BackColor = Color.Lime;
                                     connect_state.ForeColor = Color.Black;
+                                    rsport.DiscardInBuffer( );
                                     TraceManager.AddLog("CONNECT #connected $connected to RS232C communication method");
                                 } else {
                                     throw new Exception("Failed to initialize RS232C communication");
@@ -455,6 +458,7 @@ namespace Pack_Monitor {
                             TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
                             is_connected = false;
                         }
+                        timer_display.Enabled = timer.Enabled = true;
                     }
                 }
             } catch (Exception ex) {
@@ -1658,6 +1662,7 @@ namespace Pack_Monitor {
                     Thread.Sleep(10);
                 }
 
+                Thread.Sleep(100);
                 int size = rsport.BytesToRead;
                 byte[ ] datas = new byte[size];
                 rsport.Read(datas, 0, size);
@@ -1933,10 +1938,12 @@ namespace Pack_Monitor {
                     data[12] = 0x03;
                     rsport.DiscardInBuffer( );
                     rsport.Write(data, 0, 13);
-
+                    TraceManager.AddLog("read from bms button clicked on rs232c");
                     do {
-                        if (rsport.BytesToRead == 442) {
+                        TraceManager.AddLog("Now [" + rsport.BytesToRead.ToString() + "] bytes read");
+                        if (rsport.BytesToRead >= 442) {
                             new Thread(( ) => rs232c_setting_read_from_bms( )).Start( );
+                            break;
                         } else {
                             Thread.Sleep(100);
                             continue;
@@ -2218,6 +2225,7 @@ namespace Pack_Monitor {
                         data_receive.Interval = 1;
                         data_receive.Enabled = true;
                     }
+                    Com_start_btn.BackColor = Color.Lime;
                     timer.Enabled = timer_display.Enabled = timer_bool = true;
                     
                 } else {

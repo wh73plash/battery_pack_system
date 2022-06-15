@@ -921,9 +921,7 @@ namespace Pack_Monitor.CAN {
                     }
                     break;
                 case 34:
-                    if (newMsg.DATA[1] == 0xBB) {
-                        MessageBox.Show("Data Save Complete", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
+                    MessageBox.Show("Data Save Complete", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     break;
             }
         }
