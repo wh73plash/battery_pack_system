@@ -441,7 +441,7 @@ namespace Pack_Monitor {
 
                                 rsport.Open( );  //시리얼포트 열기
                                 if (rsport.IsOpen) {
-                                    is_connected = true;
+                                    is_connected = is_first = true;
                                     connect_state.Text = "Connected - RS232C";
                                     combobox_port.Enabled = false;  //COM포트설정 콤보박스 비활성화
                                     initialize_btn.BackColor = Color.Lime;
@@ -1883,8 +1883,13 @@ namespace Pack_Monitor {
         }
 
         private void setting_value_buffer( ) {
+            int cnt = 0;
             while (!Members.display_setting) {
                 Thread.Sleep(50);
+                if (++cnt >= 50) {
+                    MessageBox.Show("Communicate error try again", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
             Thread.Sleep(50);
             Members.display_setting = false;
@@ -1915,7 +1920,10 @@ namespace Pack_Monitor {
 
         private async void read_from_bms_btn_Click(object sender, EventArgs e) {
             try {
-                if (connect_state.Text == "Connected - CAN") {
+                if (error_count != 0) {
+                    MessageBox.Show("Communicate error try again", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                } else if (connect_state.Text == "Connected - CAN") {
                     setting_data_set newMessage = new setting_data_set( );
                     newMessage.ID = protocol.VALUE_SETTING;
                     newMessage.value_number = 0x07;
@@ -1939,13 +1947,19 @@ namespace Pack_Monitor {
                     rsport.DiscardInBuffer( );
                     rsport.Write(data, 0, 13);
                     TraceManager.AddLog("read from bms button clicked on rs232c");
+                    int size = rsport.BytesToRead, cnt = 0;
                     do {
-                        TraceManager.AddLog("Now [" + rsport.BytesToRead.ToString() + "] bytes read");
+                        TraceManager.AddLog("Now [" + rsport.BytesToRead.ToString( ) + "] bytes read");
                         if (rsport.BytesToRead >= 442) {
                             new Thread(( ) => rs232c_setting_read_from_bms( )).Start( );
                             break;
                         } else {
                             Thread.Sleep(100);
+                            if (size == rsport.BytesToRead && ++cnt >= 5) {
+                                rsport.DiscardInBuffer( );
+                                MessageBox.Show("Communicate error try again", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
                             continue;
                         }
                     } while (true);
@@ -2343,6 +2357,7 @@ namespace Pack_Monitor {
 
         private void log_data_read_btn_Click(object sender, EventArgs e) {
             try {
+                MessageBox.Show("Log Data Loading ...", "Loading", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 if (connect_state.Text == "Connected - CAN") {
                     Members.logdata.is_while = true;
 
