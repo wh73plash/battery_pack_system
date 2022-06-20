@@ -7,6 +7,7 @@ using System.Windows.Forms;
 
 using LGHBAcsEngine;
 using Peak.Can.Basic;
+using CSnet;
 
 using TPCANHandle = System.UInt16;
 using TPCANBitrateFD = System.String;
@@ -317,6 +318,53 @@ namespace Pack_Monitor.CAN {
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
             }
+        }
+
+        public static void v_write_message(setting_data_set message) {
+            /*try {
+                long lResult;
+                icsSpyMessage stMessagesTx = new icsSpyMessage( );
+                long lNetworkID;
+                string sTempString;
+
+
+                // Has the uset open neoVI yet?;
+                if (m_bPortOpen == false) {
+                    MessageBox.Show("neoVI not opened");
+                    return; // do not read messages if we haven't opened neoVI yet
+                }
+
+                // Read the Network we will transmit on (indicated by lstNetwork ListBox)
+                sTempString = lstNetwork.Text;
+                lNetworkID = icsNeoDll.GetNetworkIDfromString(ref sTempString);
+
+                // Is this a CAN network or a J1850/ISO one?
+                // load the message structure
+
+                stMessagesTx.ArbIDOrHeader = Convert.ToInt32(txtArbID.Text, 16);            // The ArbID
+                stMessagesTx.NumberBytesData = Convert.ToByte(lstNumberOfBytes.SelectedIndex);         // The number of Data Bytes
+                if (stMessagesTx.NumberBytesData > 8)
+                    stMessagesTx.NumberBytesData = 8; // You can only have 8 databytes with CAN
+                                                      // Load all of the data bytes in the structure
+
+                stMessagesTx.Data1 = message.
+                stMessagesTx.Data2 = Convert.ToByte(txtDataByte2.Text, 16);
+                stMessagesTx.Data3 = Convert.ToByte(txtDataByte3.Text, 16);
+                stMessagesTx.Data4 = Convert.ToByte(txtDataByte4.Text, 16);
+                stMessagesTx.Data5 = Convert.ToByte(txtDataByte5.Text, 16);
+                stMessagesTx.Data6 = Convert.ToByte(txtDataByte6.Text, 16);
+                stMessagesTx.Data7 = Convert.ToByte(txtDataByte7.Text, 16);
+                stMessagesTx.Data8 = Convert.ToByte(txtDataByte8.Text, 16);
+
+                // Transmit the assembled message
+                lResult = icsNeoDll.icsneoTxMessages(m_hObject, ref stMessagesTx, Convert.ToInt32(lNetworkID), 1);
+                // Test the returned result
+                if (lResult != 1) {
+                    MessageBox.Show("Problem Transmitting Message");
+                }
+            } catch (Exception ex) {
+                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+            }*/
         }
 
         public static void process_setting_message(TPCANMsg newMsg) {
@@ -922,6 +970,7 @@ namespace Pack_Monitor.CAN {
                     break;
                 case 34:
                     MessageBox.Show("Data Save Complete", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    Members.logdata.log_complete = true;
                     break;
             }
         }
@@ -1352,6 +1401,74 @@ namespace Pack_Monitor.CAN {
                     return true;
                 }
             } catch (Exception ex) {
+                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
+                MessageBox.Show(ex.Message, "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+        }
+
+        static IntPtr m_hObject;		 //handle for device
+        static bool m_bPortOpen;	 //tells the port status of the device
+        static icsSpyMessage[ ] stMessages = new icsSpyMessage[20000];   //TempSpace for messages
+        static byte[ ] NetworkIDConvert = new byte[15]; // Storage to convert listbox index to Network ID's 
+        static int iOpenDeviceType; //Storage for the device type that is open
+        static OptionsNeoEx neoDeviceOption = new OptionsNeoEx( );
+
+        public static bool vconnect( ) {
+            try {
+                int iResult;
+                NeoDeviceEx[ ] ndNeoToOpenex = new NeoDeviceEx[16]; //Struct holding detected hardware information
+                NeoDevice ndNeoToOpen;
+                byte[ ] bNetwork = new byte[255];    //List of hardware IDs
+                int iNumberOfDevices;   //Number of hardware devices to look for 
+                int iCount;      //counter
+                UInt32 StringSize = 6;
+                string sConvertedSN = "      ";
+                byte[ ] bSN = new byte[6];
+
+                //check if the port is already open
+                if (m_bPortOpen == true) {
+                    MessageBox.Show("Error : the port is alread open");
+                    return false;
+                }
+
+                //File NetworkID array
+                for (iCount = 0; iCount < 255; iCount++) {
+                    bNetwork[iCount] = Convert.ToByte(iCount);
+                }
+
+                //Set the number of devices to find, for this example look for 16.  This example will only work with the first.
+                iNumberOfDevices = 15;
+
+                //Search for connected hardware
+                //iResult = icsNeoDll.icsneoFindNeoDevices((uint)eHardwareTypes.NEODEVICE_ALL, ref ndNeoToOpen, ref iNumberOfDevices);
+                iResult = icsNeoDll.icsneoFindDevices(ref ndNeoToOpenex[0], ref iNumberOfDevices, 0, 0, ref neoDeviceOption, 0);
+                if (iResult == 0) {
+                    MessageBox.Show("Problem finding devices");
+                    return false;
+                }
+
+                if (iNumberOfDevices < 1) {
+                    MessageBox.Show("No devices found");
+                    return false;
+                }
+
+                ndNeoToOpen = ndNeoToOpenex[0].neoDevice;
+                //Open the first found device
+                iResult = icsNeoDll.icsneoOpenNeoDevice(ref ndNeoToOpen, ref m_hObject, ref bNetwork[0], 1, 0);
+                if (iResult == 1) {
+                    MessageBox.Show("Port Opened OK!");
+                } else {
+                    MessageBox.Show("Problem Opening Port");
+                    return false;
+                }
+
+
+                //Set the device type for later use
+                iOpenDeviceType = ndNeoToOpen.DeviceType;
+
+                return true;
+            }catch(Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
                 MessageBox.Show(ex.Message, "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;

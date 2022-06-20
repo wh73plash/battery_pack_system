@@ -38,6 +38,8 @@ namespace Pack_Monitor.CAN {
             public static string lifecycle;
 
             public static bool nextline = false;
+
+            public static bool log_complete = false;
         }
         public static bool error_cout_bool = false;
 
