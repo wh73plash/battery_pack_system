@@ -21,6 +21,7 @@ using CSnet;
 
 namespace Pack_Monitor {
     public partial class main : Form {
+        private const int SrcOffset = 13;
         bool is_communicate = false, is_connected = false;
         public UInt16 check_enable = 0;
         string csv_savefile_path;
@@ -2425,8 +2426,9 @@ namespace Pack_Monitor {
 
             void OnTimerElapsed(object state) {
                 IntPtr mbWnd = FindWindow(null, _caption);
-                if (mbWnd != IntPtr.Zero)
+                if (mbWnd != IntPtr.Zero) {
                     SendMessage(mbWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+                }
                 _timeoutTimer.Dispose( );
             }
         }
@@ -2520,8 +2522,9 @@ namespace Pack_Monitor {
                 } else {
                     for (int i = 0; i < log_data.Columns.Count; ++i) {
                         csvExport.Write(log_data.Columns[i].HeaderText);
-                        if (i != log_data.Columns.Count - 1)
+                        if (i != log_data.Columns.Count - 1) {
                             csvExport.Write(delimiter);
+                        }
                     }
                 }
                 csvExport.Write(csvExport.NewLine);
@@ -2530,8 +2533,9 @@ namespace Pack_Monitor {
                     if (!row.IsNewRow) {
                         for (int i = 0; i < log_data.Columns.Count; ++i) {
                             csvExport.Write(row.Cells[i].Value);
-                            if (i != log_data.Columns.Count - 1)
+                            if (i != log_data.Columns.Count - 1) {
                                 csvExport.Write(delimiter);
+                            }
                         }
                         csvExport.Write(csvExport.NewLine);
                     }
@@ -2707,8 +2711,9 @@ namespace Pack_Monitor {
                 e.Handled = true;
                 SendKeys.Send("{TAB}");
 
-                if (pw_discharge_over_current_detection.Text != string.Empty && !pw_discharge_over_current_detection.Text.Contains('-'))
+                if (pw_discharge_over_current_detection.Text != string.Empty && !pw_discharge_over_current_detection.Text.Contains('-')) {
                     pw_discharge_over_current_detection.Text = "-" + pw_discharge_over_current_detection.Text;
+                }
             }
         }
 
@@ -2717,8 +2722,9 @@ namespace Pack_Monitor {
                 e.Handled = true;
                 SendKeys.Send("{TAB}");
 
-                if (pw_discharge_over_current_release.Text != string.Empty && !pw_discharge_over_current_release.Text.Contains('-'))
+                if (pw_discharge_over_current_release.Text != string.Empty && !pw_discharge_over_current_release.Text.Contains('-')) {
                     pw_discharge_over_current_release.Text = "-" + pw_discharge_over_current_release.Text;
+                }
             }
         }
 
@@ -2727,8 +2733,9 @@ namespace Pack_Monitor {
                 e.Handled = true;
                 SendKeys.Send("{TAB}");
 
-                if (pf_discharge_over_current_detection.Text != string.Empty && !pf_discharge_over_current_detection.Text.Contains('-'))
+                if (pf_discharge_over_current_detection.Text != string.Empty && !pf_discharge_over_current_detection.Text.Contains('-')) {
                     pf_discharge_over_current_detection.Text = "-" + pf_discharge_over_current_detection.Text;
+                }
             }
         }
 
@@ -2737,8 +2744,9 @@ namespace Pack_Monitor {
                 e.Handled = true;
                 SendKeys.Send("{TAB}");
 
-                if (pf_discharge_over_current_release.Text != string.Empty && !pf_discharge_over_current_release.Text.Contains('-'))
+                if (pf_discharge_over_current_release.Text != string.Empty && !pf_discharge_over_current_release.Text.Contains('-')) {
                     pf_discharge_over_current_release.Text = "-" + pf_discharge_over_current_release.Text;
+                }
             }
 
         }
@@ -2760,13 +2768,10 @@ namespace Pack_Monitor {
         }
 
         public void delay_us(long us) {
-            //Stopwatch 초기화 후 시간 측정 시작
             Stopwatch startNew = Stopwatch.StartNew( );
-            //설정한 us를 비교에 쓰일 Tick값으로 변환
             long usDelayTick = (us * Stopwatch.Frequency) / 1000000;
-            //변환된 Tick값보다 클때까지 대기 
-            while (startNew.ElapsedTicks < usDelayTick)
-                ;
+            while (startNew.ElapsedTicks < usDelayTick) {
+            }
         }
 
         private int buffer_count = 0;
@@ -2783,20 +2788,20 @@ namespace Pack_Monitor {
                 for (iterator = 0; iterator < datas.Length; ++iterator)
                     if (datas[iterator] == 0x02 && datas[iterator + 12] == 0x03)
                         break;
-                Buffer.BlockCopy(datas, iterator, read_buffer, 0, 13);
+                Buffer.BlockCopy(datas, iterator, read_buffer, 0, SrcOffset);
 
                 if (iterator == 0) {
-                    byte[ ] buffer_any = new byte[datas.Length - 13];
-                    Buffer.BlockCopy(datas, 13, buffer_any, 0, datas.Length - 13);
+                    byte[ ] buffer_any = new byte[datas.Length - SrcOffset];
+                    Buffer.BlockCopy(datas, SrcOffset, buffer_any, 0, datas.Length - SrcOffset);
                     fix_func(buffer_any);
                 } else {
-                    if (datas.Length - (iterator + 13) > 0) {
+                    if (datas.Length - (iterator + SrcOffset) > 0) {
                         byte[ ] buffer_any = new byte[iterator + 1];
                         Buffer.BlockCopy(datas, 0, buffer_any, 0, iterator);
                         fix_func(buffer_any);
 
-                        buffer_any = new byte[datas.Length - (iterator + 13)];
-                        Buffer.BlockCopy(datas, iterator + 13, buffer_any, 0, datas.Length - (iterator + 13));
+                        buffer_any = new byte[datas.Length - (iterator + SrcOffset)];
+                        Buffer.BlockCopy(datas, iterator + SrcOffset, buffer_any, 0, datas.Length - (iterator + SrcOffset));
                         fix_func(buffer_any);
                     } else {
                         byte[ ] buffer_any = new byte[iterator + 1];
@@ -2805,19 +2810,23 @@ namespace Pack_Monitor {
                     }
                 }
             } else {
-                for (int i = 0; i < datas.Length; ++i)
-                    if (datas[i] == stx)
+                for (int i = 0; i < datas.Length; ++i) {
+                    if (datas[i] == stx) {
                         start = i;
-                for (int i = datas.Length - 1; i >= 0; --i)
-                    if (datas[i] == etx)
+                    }
+                }
+                for (int i = datas.Length - 1; i >= 0; --i) {
+                    if (datas[i] == etx) {
                         end = i;
+                    }
+                }
                 if (start != 0 && end == -1) {
                     buffer_count = datas.Length - 1;
                     Buffer.BlockCopy(datas, 0, buffer_bytes, 0, buffer_count - 1);
                 } else if (start == -1 && end != 0) {
                     Buffer.BlockCopy(datas, 0, buffer_bytes, buffer_count, end - buffer_count);
                     process_datas(buffer_bytes);
-                    buffer_bytes = new byte[13];
+                    buffer_bytes = new byte[SrcOffset];
                     buffer_count = 0;
                 }
             }
@@ -2969,9 +2978,23 @@ namespace Pack_Monitor {
                 return;
             }
         }
-
+        private uint ester_egg_count = 0;
+        DateTime start_time;
         private void logo_picturebox_Click(object sender, EventArgs e) {
-
+            if (ester_egg_count == 0) {
+                start_time = DateTime.Now;
+                ++ester_egg_count;
+            } else if (ester_egg_count >= 15) {
+                TimeSpan ts = start_time - DateTime.Now;
+                if (ts <= (new DateTime(1, 1, 1, 1, 1, 1) - new DateTime(1, 1, 1, 1, 1, 0))) {
+                    MessageBox.Show("Congratulation!\nYou Found Ester Egg!\nProgrammed by Jein Kim", "Ester Egg!", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    ester_egg_count = 0;
+                } else {
+                    ester_egg_count = 0;
+                }
+            } else {
+                ++ester_egg_count;
+            }
         }
 
         private void connect_state_Click(object sender, EventArgs e) {
