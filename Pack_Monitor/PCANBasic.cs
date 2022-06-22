@@ -662,6 +662,8 @@ namespace Peak.Can.Basic
     /// </summary>
     public static class PCANBasic
     {
+        public const string DLL_PATH = "C:\\Windows\\SysWOW64\\PCANBasic.dll";
+
         #region PCAN-BUS Handles Definition
         /// <summary>
         /// Undefined/default value for a PCAN bus
@@ -1114,7 +1116,7 @@ namespace Peak.Can.Basic
         /// <param name="IOPort">Non-PnP: The I/O address for the parallel port</param>
         /// <param name="Interrupt">Non-PnP: Interrupt number of the parallel por</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_Initialize")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_Initialize")]
         public static extern TPCANStatus Initialize(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1152,7 +1154,7 @@ namespace Peak.Can.Basic
         /// * Following Parameters are optional (not used yet): data_ssp_offset, nom_sam</remarks>
         /// <example>f_clock=80000000,nom_brp=10,nom_tseg1=5,nom_tseg2=2,nom_sjw=1,data_brp=4,data_tseg1=7,data_tseg2=2,data_sjw=1</example>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_InitializeFD")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_InitializeFD")]
         public static extern TPCANStatus InitializeFD(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1165,7 +1167,7 @@ namespace Peak.Can.Basic
         /// uninitialize all initialized channels</remarks>
         /// <param name="Channel">The handle of a PCAN Channel</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_Uninitialize")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_Uninitialize")]
         public static extern TPCANStatus Uninitialize(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel);
@@ -1176,7 +1178,7 @@ namespace Peak.Can.Basic
         /// <remarks>A reset of the CAN controller is not performed</remarks>
         /// <param name="Channel">The handle of a PCAN Channel</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_Reset")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_Reset")]
         public static extern TPCANStatus Reset(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel);
@@ -1186,7 +1188,7 @@ namespace Peak.Can.Basic
         /// </summary>
         /// <param name="Channel">The handle of a PCAN Channel</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_GetStatus")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_GetStatus")]
         public static extern TPCANStatus GetStatus(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel);
@@ -1199,14 +1201,14 @@ namespace Peak.Can.Basic
         /// <param name="TimestampBuffer">A TPCANTimestamp structure buffer to get
         /// the reception time of the message</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_Read")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_Read")]
         public static extern TPCANStatus Read(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
             out TPCANMsg MessageBuffer,
             out TPCANTimestamp TimestampBuffer);
 
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_Read")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_Read")]
         private static extern TPCANStatus Read(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1234,14 +1236,14 @@ namespace Peak.Can.Basic
         /// <param name="TimestampBuffer">A TPCANTimestampFD buffer to get the
         /// reception time of the message</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_ReadFD")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_ReadFD")]
         public static extern TPCANStatus ReadFD(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
             out TPCANMsgFD MessageBuffer,
             out TPCANTimestampFD TimestampBuffer);
 
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_ReadFD")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_ReadFD")]
         private static extern TPCANStatus ReadFD(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1267,7 +1269,7 @@ namespace Peak.Can.Basic
         /// <param name="Channel">The handle of a PCAN Channel</param>
         /// <param name="MessageBuffer">A TPCANMsg buffer with the message to be sent</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_Write")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_Write")]
         public static extern TPCANStatus Write(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1279,7 +1281,7 @@ namespace Peak.Can.Basic
         /// <param name="Channel">The handle of a FD capable PCAN Channel</param>
         /// <param name="MessageBuffer">A TPCANMsgFD buffer with the message to be sent</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_WriteFD")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_WriteFD")]
         public static extern TPCANStatus WriteFD(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1297,7 +1299,7 @@ namespace Peak.Can.Basic
         /// <param name="Mode">Message type, Standard (11-bit identifier) or
         /// Extended (29-bit identifier)</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_FilterMessages")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_FilterMessages")]
         public static extern TPCANStatus FilterMessages(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1317,7 +1319,7 @@ namespace Peak.Can.Basic
         /// <param name="StringBuffer">Buffer for the parameter value</param>
         /// <param name="BufferLength">Size in bytes of the buffer</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_GetValue")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_GetValue")]
         public static extern TPCANStatus GetValue(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1337,7 +1339,7 @@ namespace Peak.Can.Basic
         /// <param name="NumericBuffer">Buffer for the parameter value</param>
         /// <param name="BufferLength">Size in bytes of the buffer</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_GetValue")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_GetValue")]
         public static extern TPCANStatus GetValue(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1357,7 +1359,7 @@ namespace Peak.Can.Basic
         /// <param name="NumericBuffer">Buffer for the parameter value</param>
         /// <param name="BufferLength">Size in bytes of the buffer</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_GetValue")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_GetValue")]
         public static extern TPCANStatus GetValue(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1366,7 +1368,7 @@ namespace Peak.Can.Basic
             out UInt64 NumericBuffer,
             UInt32 BufferLength);
 
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_GetValue")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_GetValue")]
         private static extern TPCANStatus GetValue(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1407,7 +1409,7 @@ namespace Peak.Can.Basic
         /// <param name="NumericBuffer">Buffer with the value to be set</param>
         /// <param name="BufferLength">Size in bytes of the buffer</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_SetValue")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_SetValue")]
         public static extern TPCANStatus SetValue(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1427,7 +1429,7 @@ namespace Peak.Can.Basic
         /// <param name="NumericBuffer">Buffer with the value to be set</param>
         /// <param name="BufferLength">Size in bytes of the buffer</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_SetValue")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_SetValue")]
         public static extern TPCANStatus SetValue(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1447,7 +1449,7 @@ namespace Peak.Can.Basic
         /// <param name="StringBuffer">Buffer with the value to be set</param>
         /// <param name="BufferLength">Size in bytes of the buffer</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_SetValue")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_SetValue")]
         public static extern TPCANStatus SetValue(
             [MarshalAs(UnmanagedType.U2)]
             TPCANHandle Channel,
@@ -1468,7 +1470,7 @@ namespace Peak.Can.Basic
         /// <param name="Language">Indicates a 'Primary language ID'</param>
         /// <param name="StringBuffer">Buffer for the text (must be at least 256 in length)</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_GetErrorText")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_GetErrorText")]
         public static extern TPCANStatus GetErrorText(
             [MarshalAs(UnmanagedType.U4)]
             TPCANStatus Error,
@@ -1484,7 +1486,7 @@ namespace Peak.Can.Basic
         /// <param name="FoundChannel">Buffer for returning the PCAN-Basic channel, 
         /// when found</param>
         /// <returns>A TPCANStatus error code</returns>
-        [DllImport("PCANBasic.dll", EntryPoint = "CAN_LookUpChannel")]
+        [DllImport(DLL_PATH, EntryPoint = "CAN_LookUpChannel")]
         public static extern TPCANStatus LookUpChannel(
             String Parameters,
             out TPCANHandle FoundChannel);

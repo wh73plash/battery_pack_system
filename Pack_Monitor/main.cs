@@ -88,24 +88,6 @@ namespace Pack_Monitor {
                         can_connect.Enabled = false;
                         rs232_connect.Enabled = false;
                         combobox_port.Enabled = false;
-                        vcan_connect.Enabled = false;
-                        connect_state.ForeColor = Color.Black;
-                        is_connected = true;
-                        initialize_btn.BackColor = Color.Lime;
-                        data_receive.Interval = 1;
-                        data_receive.Enabled = true;
-                        TraceManager.AddLog("CONNECT #connected $connected to CAN communication method");
-                    } else {
-                        MessageBox.Show("Failed to initialize Can communication", "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        throw new Exception("Failed to initialize Can communication");
-                    }
-                } else if (vcan_connect.Checked) {
-                    if (Connection.vconnect( )) {
-                        connect_state.Text = "Connected - VCAN";
-                        can_connect.Enabled = false;
-                        vcan_connect.Enabled = false;
-                        rs232_connect.Enabled = false;
-                        combobox_port.Enabled = false;
                         connect_state.ForeColor = Color.Black;
                         is_connected = true;
                         initialize_btn.BackColor = Color.Lime;
@@ -131,7 +113,6 @@ namespace Pack_Monitor {
                         can_connect.Enabled = false;
                         rs232_connect.Enabled = false;
                         combobox_port.Enabled = false;
-                        vcan_connect.Enabled = false;
                         combobox_port.Enabled = false;
                         initialize_btn.BackColor = Color.Lime;
                         connect_state.ForeColor = Color.Black;
@@ -144,7 +125,6 @@ namespace Pack_Monitor {
                     MessageBox.Show("No Connection method has been selected", "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             } catch (Exception ex) {
-                MessageBox.Show(ex.StackTrace, ex.Message, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
                 is_connected = false;
             }
@@ -3002,7 +2982,7 @@ namespace Pack_Monitor {
         }
 
         private void label1_Click(object sender, EventArgs e) {
-
+            
         }
 
         private void log_data_RowsAdded(object sender, DataGridViewRowsAddedEventArgs e) {
