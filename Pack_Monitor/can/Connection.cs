@@ -7,7 +7,6 @@ using System.Windows.Forms;
 
 using LGHBAcsEngine;
 using Peak.Can.Basic;
-using CSnet;
 
 using TPCANHandle = System.UInt16;
 using TPCANBitrateFD = System.String;
@@ -1401,74 +1400,6 @@ namespace Pack_Monitor.CAN {
                     return true;
                 }
             } catch (Exception ex) {
-                TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
-                MessageBox.Show(ex.Message, "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
-        }
-
-        static IntPtr m_hObject;		 //handle for device
-        static bool m_bPortOpen;	 //tells the port status of the device
-        static icsSpyMessage[ ] stMessages = new icsSpyMessage[20000];   //TempSpace for messages
-        static byte[ ] NetworkIDConvert = new byte[15]; // Storage to convert listbox index to Network ID's 
-        static int iOpenDeviceType; //Storage for the device type that is open
-        static OptionsNeoEx neoDeviceOption = new OptionsNeoEx( );
-
-        public static bool vconnect( ) {
-            try {
-                int iResult;
-                NeoDeviceEx[ ] ndNeoToOpenex = new NeoDeviceEx[16]; //Struct holding detected hardware information
-                NeoDevice ndNeoToOpen;
-                byte[ ] bNetwork = new byte[255];    //List of hardware IDs
-                int iNumberOfDevices;   //Number of hardware devices to look for 
-                int iCount;      //counter
-                UInt32 StringSize = 6;
-                string sConvertedSN = "      ";
-                byte[ ] bSN = new byte[6];
-
-                //check if the port is already open
-                if (m_bPortOpen == true) {
-                    MessageBox.Show("Error : the port is alread open");
-                    return false;
-                }
-
-                //File NetworkID array
-                for (iCount = 0; iCount < 255; iCount++) {
-                    bNetwork[iCount] = Convert.ToByte(iCount);
-                }
-
-                //Set the number of devices to find, for this example look for 16.  This example will only work with the first.
-                iNumberOfDevices = 15;
-
-                //Search for connected hardware
-                //iResult = icsNeoDll.icsneoFindNeoDevices((uint)eHardwareTypes.NEODEVICE_ALL, ref ndNeoToOpen, ref iNumberOfDevices);
-                iResult = icsNeoDll.icsneoFindDevices(ref ndNeoToOpenex[0], ref iNumberOfDevices, 0, 0, ref neoDeviceOption, 0);
-                if (iResult == 0) {
-                    MessageBox.Show("Problem finding devices");
-                    return false;
-                }
-
-                if (iNumberOfDevices < 1) {
-                    MessageBox.Show("No devices found");
-                    return false;
-                }
-
-                ndNeoToOpen = ndNeoToOpenex[0].neoDevice;
-                //Open the first found device
-                iResult = icsNeoDll.icsneoOpenNeoDevice(ref ndNeoToOpen, ref m_hObject, ref bNetwork[0], 1, 0);
-                if (iResult == 1) {
-                    MessageBox.Show("Port Opened OK!");
-                } else {
-                    MessageBox.Show("Problem Opening Port");
-                    return false;
-                }
-
-
-                //Set the device type for later use
-                iOpenDeviceType = ndNeoToOpen.DeviceType;
-
-                return true;
-            }catch(Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
                 MessageBox.Show(ex.Message, "Error !", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;

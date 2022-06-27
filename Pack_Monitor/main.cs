@@ -17,7 +17,6 @@ using System.Runtime.InteropServices;
 using LGHBAcsEngine;
 using Peak.Can.Basic;
 using Pack_Monitor.CAN;
-using CSnet;
 
 namespace Pack_Monitor {
     public partial class main : Form {
@@ -84,7 +83,7 @@ namespace Pack_Monitor {
             try {
                 if (can_connect.Checked) {
                     if (Connection.connect( )) {
-                        connect_state.Text = "Connected - PCAN";
+                        connect_state.Text = "Connected - CAN";
                         can_connect.Enabled = false;
                         rs232_connect.Enabled = false;
                         combobox_port.Enabled = false;
