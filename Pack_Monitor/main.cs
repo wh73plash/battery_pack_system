@@ -1388,7 +1388,7 @@ namespace Pack_Monitor {
 
                 newMessage.value_number = 13;
                 newMessage.worf = 16;
-                newMessage.message = setting_bettery_type_cmb.SelectedIndex.ToString( );
+                newMessage.message = (setting_bettery_type_cmb.SelectedIndex + 1).ToString( );
                 TraceManager.AddLog("WRITE #write message $value number:13 16 @message:" + newMessage.message);
                 Connection.write_message(newMessage);
                 Thread.Sleep(10);
@@ -1649,7 +1649,7 @@ namespace Pack_Monitor {
 
                 newMessage.value_number = 13;
                 newMessage.worf = 16;
-                newMessage.message = setting_bettery_type_cmb.SelectedIndex.ToString( );
+                newMessage.message = (setting_bettery_type_cmb.SelectedIndex + 1).ToString( );
                 TraceManager.AddLog("WRITE #write message $value number:13 16 @message:" + newMessage.message);
                 send(newMessage);
                 Thread.Sleep(10);
@@ -1882,7 +1882,7 @@ namespace Pack_Monitor {
                     current_direction_1.BackColor = Color.Lime;
                 }
                 int index_buffer = Convert.ToInt32(Members.battery_type);
-                setting_bettery_type_cmb.Text = battery_type_list[index_buffer];
+                setting_bettery_type_cmb.Text = battery_type_list[index_buffer - 1];
 
                 string bin = Convert.ToString(Members.check_enable_buffer, 2).PadLeft(16, '0');
                 p_overvoltage_ch.Checked = bin[15] == '1';
