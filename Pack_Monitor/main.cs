@@ -707,6 +707,8 @@ namespace Pack_Monitor {
                     current_sensor_type_100.BackColor = Color.Silver;
                     current_sensor_type_50.BackColor = Color.Silver;
                 }
+
+                setting_number_of_temperature.Text = tmp[++cnt];
                 return;
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -977,7 +979,7 @@ namespace Pack_Monitor {
                 p_overvoltage_ch.Checked + ',' + p_undervoltage_ch.Checked + ',' + p_chargeovercurrent_ch.Checked + ',' + p_dischargeovercurrent_ch.Checked + ',' +
                 p_oversoc_ch.Checked + ',' + p_undersoc_ch.Checked + ',' + p_undersoh_ch.Checked + ',' + checkBox12.Checked + ',' + checkBox11.Checked + ',' +
                 checkBox10.Checked + ',' + checkBox9.Checked + ',' + checkBox8.Checked + ',' + checkBox7.Checked + ',' + setting_bettery_type_cmb.SelectedIndex.ToString( )
-                + ',' + buff + ',' + buffer + ',';
+                + ',' + buff + ',' + buffer + ',' + setting_number_of_temperature.Text + ',';
                 StreamWriter fp;
                 fp = File.AppendText(path);
                 fp.Write(data);
@@ -1149,6 +1151,7 @@ namespace Pack_Monitor {
                 setting_cell_life_cycle.Text = string.Empty;
                 setting_cell_balancing_start_v.Text = string.Empty;
                 setting_number_of_cell.Text = string.Empty;
+                setting_number_of_temperature.Text = String.Empty;
 
                 setting_soc_value.Text = string.Empty;
                 setting_soh_value.Text = string.Empty;
@@ -1415,6 +1418,13 @@ namespace Pack_Monitor {
                 Connection.write_message(newMessage);
                 Thread.Sleep(10);
 
+                newMessage.value_number = 16;
+                newMessage.worf = 19;
+                newMessage.message = setting_number_of_temperature.Text;
+                TraceManager.AddLog("WRITE #write message $value number:10 16 @message:" + newMessage.message);
+                Connection.write_message(newMessage);
+                Thread.Sleep(10);
+
                 if (data_save_command.Checked) {
                     newMessage.value_number = 0x22;
                     newMessage.worf = 0x2A;
@@ -1676,6 +1686,13 @@ namespace Pack_Monitor {
                 send(newMessage);
                 Thread.Sleep(10);
 
+                newMessage.value_number = 16;
+                newMessage.worf = 19;
+                newMessage.message = setting_number_of_temperature.Text;
+                TraceManager.AddLog("WRITE #write message $value number:10 16 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
                 if (data_save_command.Checked) {
                     newMessage.value_number = 0x22;
                     newMessage.worf = 0x2A;
@@ -1721,6 +1738,7 @@ namespace Pack_Monitor {
                 setting_cell_balancing_start_v.Text = Members.cellbalancingstartvsetting;
                 setting_cell_life_cycle.Text = Members.celllifecyclesetting;
                 setting_number_of_cell.Text = Members.numberofcell;
+                setting_number_of_temperature.Text = Members.numberoftemperature;
 
                 string[ ] buffer = Members.povervoltage[0].Split(',');
                 pw_over_voltage_detection.Text = buffer[0];

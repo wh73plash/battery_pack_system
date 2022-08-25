@@ -105,6 +105,7 @@ namespace Pack_Monitor.CAN {
         public static string battery_type;
         public static string current_direction;
         public static string current_sensor_type;
+        public static string numberoftemperature;
 
         /// <summary>
         /// Read-Delegate Handler
