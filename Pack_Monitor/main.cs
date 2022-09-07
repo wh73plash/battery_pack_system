@@ -569,8 +569,6 @@ namespace Pack_Monitor {
                 string context = File.ReadAllText(file_path);
                 string[ ] tmp = context.Split(',');
                 int cnt = 0;
-                setting_soc_value.Text = tmp[cnt++];
-                setting_soh_value.Text = tmp[cnt++];
                 pw_over_voltage_detection.Text = tmp[cnt++];
                 pw_over_voltage_detection_time.Text = tmp[cnt++];
                 pw_over_voltage_release.Text = tmp[cnt++];
@@ -965,7 +963,7 @@ namespace Pack_Monitor {
                     buffer_ = "1";
                 }
 
-                string data = setting_soc_value.Text + ',' + setting_soh_value.Text + ',' + pw_over_voltage_detection.Text + ',' + pw_over_voltage_detection_time.Text + ',' + pw_over_voltage_release.Text + ',' +
+                string data = pw_over_voltage_detection.Text + ',' + pw_over_voltage_detection_time.Text + ',' + pw_over_voltage_release.Text + ',' +
                 pw_over_voltage_release_time.Text + ',' + pf_over_voltage_detection.Text + ',' + pf_over_voltage_detection_time.Text + ',' + pf_over_voltage_release.Text + ',' + pf_over_voltage_release_time.Text + ',' +
                 pw_under_voltage_detection.Text + ',' + pw_under_voltage_detection_time.Text + ',' + pw_under_voltage_release.Text + ',' + pw_under_voltage_release_time.Text + ',' +
                 pf_under_voltage_detection.Text + ',' + pf_under_voltage_detection_time.Text + ',' + pf_under_voltage_release.Text + ',' + pw_under_voltage_release_time.Text + ',' +
@@ -995,10 +993,7 @@ namespace Pack_Monitor {
                 p_oversoc_ch.Checked + ',' + p_undersoc_ch.Checked + ',' + p_undersoh_ch.Checked + ',' + checkBox12.Checked + ',' + checkBox11.Checked + ',' +
                 checkBox10.Checked + ',' + checkBox9.Checked + ',' + checkBox8.Checked + ',' + checkBox7.Checked + ',' + setting_bettery_type_cmb.SelectedIndex.ToString( )
                 + ',' + buff + ',' + buffer + ',' + setting_number_of_temperature.Text + ',' + buffer_ + ',';
-                StreamWriter fp;
-                fp = File.AppendText(path);
-                fp.Write(data);
-                fp.Close( );
+                File.WriteAllText(path, data);
                 return;
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -1168,8 +1163,8 @@ namespace Pack_Monitor {
                 setting_number_of_cell.Text = string.Empty;
                 setting_number_of_temperature.Text = String.Empty;
 
-                setting_soc_value.Text = string.Empty;
-                setting_soh_value.Text = string.Empty;
+                // setting_soc_value.Text = string.Empty;
+                // setting_soh_value.Text = string.Empty;
 
                 p_overvoltage_ch.Checked = false;
                 p_undervoltage_ch.Checked = false;
@@ -1192,6 +1187,9 @@ namespace Pack_Monitor {
                 current_sensor_type_50.BackColor = Color.Silver;
                 current_sensor_type_100.BackColor = Color.Silver;
                 current_sensor_type_200.BackColor = Color.Silver;
+
+                wakeuptype_0.BackColor = Color.Silver;
+                wakeuptype_1.BackColor = Color.Silver;
 
                 setting_bettery_type_cmb.SelectedIndex = -1;
                 TraceManager.AddLog("SUCCESS #Data Clear  $setting data set clear");
