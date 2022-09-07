@@ -76,6 +76,7 @@ namespace Pack_Monitor.CAN {
                     case 14:
                     case 15:
                     case 16:
+                    case 17:
                         arr_b = BitConverter.GetBytes(Convert.ToInt32(message.message, 10));
                         msg.DATA[2] = arr_b[0];
                         msg.DATA[3] = arr_b[1];
@@ -438,6 +439,12 @@ namespace Pack_Monitor.CAN {
                     bb = new byte[4];
                     Buffer.BlockCopy(newMsg.DATA, 2, bb, 0, 2);
                     Members.numberoftemperature = BitConverter.ToInt32(bb, 0).ToString( );
+                    break;
+                case 17:
+                    Members.setting_cnt++;
+                    bb = new byte[4];
+                    Buffer.BlockCopy(newMsg.DATA, 2, bb, 0, 2);
+                    Members.wakeuptype = BitConverter.ToInt32(bb, 0).ToString( );
                     break;
 
                 case 21:

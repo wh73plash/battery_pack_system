@@ -709,6 +709,14 @@ namespace Pack_Monitor {
                 }
 
                 setting_number_of_temperature.Text = tmp[++cnt];
+
+                if (tmp[++cnt] == "0") {
+                    wakeuptype_0.BackColor = Color.Lime;
+                    wakeuptype_1.BackColor = Color.Silver;
+                } else {
+                    wakeuptype_0.BackColor = Color.Silver;
+                    wakeuptype_1.BackColor = Color.Lime;
+                }
                 return;
             } catch (Exception ex) {
                 TraceManager.AddLog("ERROR   #Exception  $" + ex.Message + "@" + ex.StackTrace);
@@ -942,7 +950,7 @@ namespace Pack_Monitor {
             //경로 파일 생성 이후 setting에있는 모든 데이터 순차적으로 입력
             try {
                 string buff = current_direction_0.BackColor == Color.Lime ? "0" : "1";
-                string buffer;
+                string buffer, buffer_;
                 if (current_sensor_type_50.BackColor == Color.Lime) {
                     buffer = "50";
                 } else if (current_sensor_type_100.BackColor == Color.Lime) {
@@ -950,6 +958,13 @@ namespace Pack_Monitor {
                 } else {
                     buffer = "200";
                 }
+
+                if (wakeuptype_0.BackColor == Color.Lime) {
+                    buffer_ = "0";
+                } else {
+                    buffer_ = "1";
+                }
+
                 string data = setting_soc_value.Text + ',' + setting_soh_value.Text + ',' + pw_over_voltage_detection.Text + ',' + pw_over_voltage_detection_time.Text + ',' + pw_over_voltage_release.Text + ',' +
                 pw_over_voltage_release_time.Text + ',' + pf_over_voltage_detection.Text + ',' + pf_over_voltage_detection_time.Text + ',' + pf_over_voltage_release.Text + ',' + pf_over_voltage_release_time.Text + ',' +
                 pw_under_voltage_detection.Text + ',' + pw_under_voltage_detection_time.Text + ',' + pw_under_voltage_release.Text + ',' + pw_under_voltage_release_time.Text + ',' +
@@ -979,7 +994,7 @@ namespace Pack_Monitor {
                 p_overvoltage_ch.Checked + ',' + p_undervoltage_ch.Checked + ',' + p_chargeovercurrent_ch.Checked + ',' + p_dischargeovercurrent_ch.Checked + ',' +
                 p_oversoc_ch.Checked + ',' + p_undersoc_ch.Checked + ',' + p_undersoh_ch.Checked + ',' + checkBox12.Checked + ',' + checkBox11.Checked + ',' +
                 checkBox10.Checked + ',' + checkBox9.Checked + ',' + checkBox8.Checked + ',' + checkBox7.Checked + ',' + setting_bettery_type_cmb.SelectedIndex.ToString( )
-                + ',' + buff + ',' + buffer + ',' + setting_number_of_temperature.Text + ',';
+                + ',' + buff + ',' + buffer + ',' + setting_number_of_temperature.Text + ',' + buffer_ + ',';
                 StreamWriter fp;
                 fp = File.AppendText(path);
                 fp.Write(data);
@@ -1425,6 +1440,18 @@ namespace Pack_Monitor {
                 Connection.write_message(newMessage);
                 Thread.Sleep(10);
 
+                newMessage.value_number = 17;
+                newMessage.worf = 20;
+                if (wakeuptype_0.BackColor == Color.Lime) {
+                    buff = "0";
+                } else {
+                    buff = "1";
+                }
+                newMessage.message = buff;
+                TraceManager.AddLog("WRITE #write message $value number:10 17 @message:" + newMessage.message);
+                Connection.write_message(newMessage);
+                Thread.Sleep(10);
+
                 if (data_save_command.Checked) {
                     newMessage.value_number = 0x22;
                     newMessage.worf = 0x2A;
@@ -1693,6 +1720,18 @@ namespace Pack_Monitor {
                 send(newMessage);
                 Thread.Sleep(10);
 
+                newMessage.value_number = 17;
+                newMessage.worf = 20;
+                if (wakeuptype_0.BackColor == Color.Lime) {
+                    buff = "0";
+                } else {
+                    buff = "1";
+                }
+                newMessage.message = buff;
+                TraceManager.AddLog("WRITE #write message $value number:10 16 @message:" + newMessage.message);
+                send(newMessage);
+                Thread.Sleep(10);
+
                 if (data_save_command.Checked) {
                     newMessage.value_number = 0x22;
                     newMessage.worf = 0x2A;
@@ -1739,6 +1778,7 @@ namespace Pack_Monitor {
                 setting_cell_life_cycle.Text = Members.celllifecyclesetting;
                 setting_number_of_cell.Text = Members.numberofcell;
                 setting_number_of_temperature.Text = Members.numberoftemperature;
+                
 
                 string[ ] buffer = Members.povervoltage[0].Split(',');
                 pw_over_voltage_detection.Text = buffer[0];
@@ -1901,6 +1941,14 @@ namespace Pack_Monitor {
                 }
                 int index_buffer = Convert.ToInt32(Members.battery_type);
                 setting_bettery_type_cmb.Text = battery_type_list[index_buffer - 1];
+
+                if (Members.wakeuptype == "0") {
+                    wakeuptype_0.BackColor = Color.Lime;
+                    wakeuptype_1.BackColor = Color.Silver;
+                } else {
+                    wakeuptype_0.BackColor = Color.Silver;
+                    wakeuptype_1.BackColor = Color.Lime;
+                }
 
                 string bin = Convert.ToString(Members.check_enable_buffer, 2).PadLeft(16, '0');
                 p_overvoltage_ch.Checked = bin[15] == '1';
@@ -3160,6 +3208,16 @@ namespace Pack_Monitor {
 
         private void log_function_buffer( ) {
             
+        }
+
+        private void wakeuptype_0_Click(object sender, EventArgs e) {
+            wakeuptype_0.BackColor = Color.Lime;
+            wakeuptype_1.BackColor = Color.Silver;
+        }
+
+        private void wakeuptype_1_Click(object sender, EventArgs e) {
+            wakeuptype_0.BackColor = Color.Silver;
+            wakeuptype_1.BackColor = Color.Lime;
         }
 
         uint size = 0;

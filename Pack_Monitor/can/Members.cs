@@ -106,6 +106,7 @@ namespace Pack_Monitor.CAN {
         public static string current_direction;
         public static string current_sensor_type;
         public static string numberoftemperature;
+        public static string wakeuptype;
 
         /// <summary>
         /// Read-Delegate Handler
